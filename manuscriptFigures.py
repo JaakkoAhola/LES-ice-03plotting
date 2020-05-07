@@ -637,12 +637,12 @@ def main():
         figObject.figure2()
     if False:
         figObject.figure3()
-    
     if False:
         figObject.figure4()
-        
     if False:
-        figObject.figure5()        
+        figObject.figure5()
+    if False:
+        figObject.figure6()
     if True:
         figObject.figure7()        
     
