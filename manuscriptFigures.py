@@ -22,6 +22,7 @@ from Plot import Plot
 from PlotTweak import PlotTweak
 from Colorful import Colorful
 from Data import Data
+from SimulationDataAnalysis import SimulationDataAnalysis
 
 class ManuscriptFigures:
     
@@ -458,7 +459,52 @@ class ManuscriptFigures:
         fig.save()
     
     def figure6(self):
-        pass
+        simulation = "Prognostic_48h"
+        packing = 4
+        
+        
+        self.simulationCollection[simulation].getPSDataset()
+        self.simulationCollection[simulation].setTimeCoordToHours()
+        
+        #fig = Figure(self.figurefolder,"figure6", ncols = 2, nrows = 2, hspace=0.43, bottom = 0.14, left=0.15, top=0.98, wspace = 0.1)
+        
+        aero  = SimulationDataAnalysis( self.simulationCollection[simulation], "P_Nabb")
+        cloud = SimulationDataAnalysis( self.simulationCollection[simulation], "P_Ncbb")
+        ice   = SimulationDataAnalysis( self.simulationCollection[simulation], "P_Nibb")
+    
+        
+        for data in aero,cloud,ice:
+            data.filterPSVariableInCloud()
+            data.renamePSCoordSizeBinB()
+            data.packFilteredPSVariablewithSizeBinCoords(packing)
+
+        total = aero + cloud + ice
+        
+        print(total)
+        
+        for bini in range(packing):
+            coordName = aero.getSizeBinNameGroupedByBins()
+            
+            aeroBin = aero.isel( coordName  = bini)
+            cloudBin = cloud.isel( coordName = bini)
+            iceBin = ice.isel( coordName = bini)
+            
+            totalBin = total.isel( coordName = bini)
+            
+            aeroFrac = aeroBin/totalBin
+            cloudFrac = cloudBin/totalBin
+            iceFrac = iceBin/totalBin
+            
+            totalBinRelative  = totalBin / totalBin.values[0]
+            
+            
+            if bini == (packing - 1):
+                bininame = str(bini + 1 ) + " - 7"
+            else:
+                bininame = str(bini +1)
+                
+            
+        
     
     def figure7(self):
         
@@ -641,9 +687,9 @@ def main():
         figObject.figure4()
     if False:
         figObject.figure5()
-    if False:
-        figObject.figure6()
     if True:
+        figObject.figure6()
+    if False:
         figObject.figure7()        
     
     
