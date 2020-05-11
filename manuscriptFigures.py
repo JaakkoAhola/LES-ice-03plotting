@@ -459,52 +459,121 @@ class ManuscriptFigures:
         fig.save()
     
     def figure6(self):
-        simulation = "Prognostic_48h"
         packing = 4
         
+        simulation = "Prognostic_48h"
+        simulCol = self.simulationCollection[simulation]
+        simulCol.getPSDataset()
         
-        self.simulationCollection[simulation].getPSDataset()
-        self.simulationCollection[simulation].setTimeCoordToHours()
         
-        #fig = Figure(self.figurefolder,"figure6", ncols = 2, nrows = 2, hspace=0.43, bottom = 0.14, left=0.15, top=0.98, wspace = 0.1)
+        simulCol.setTimeCoordToHours()
         
-        aero  = SimulationDataAnalysis( self.simulationCollection[simulation], "P_Nabb")
-        cloud = SimulationDataAnalysis( self.simulationCollection[simulation], "P_Ncbb")
-        ice   = SimulationDataAnalysis( self.simulationCollection[simulation], "P_Nibb")
+        fig = Figure(self.figurefolder,"figure6", ncols = 2, nrows = 2, hspace=0.1, bottom = 0.14, left=0.05, top=0.9, wspace = 0.06)
+        
+        aeroAnalysis  = SimulationDataAnalysis( simulCol, "P_Nabb")
+        cloudAnalysis = SimulationDataAnalysis( simulCol, "P_Ncbb")
+        iceAnalysis   = SimulationDataAnalysis( simulCol, "P_Nibb")
     
         
-        for data in aero,cloud,ice:
-            data.filterPSVariableInCloud()
-            data.renamePSCoordSizeBinB()
-            data.packFilteredPSVariablewithSizeBinCoords(packing)
-
+        aeroAnalysis.filterPSVariableInCloud()
+        cloudAnalysis.filterPSVariableInCloud()
+        iceAnalysis.filterPSVariableInCloud()
+        
+        aeroAnalysis.renamePSCoordSizeBinB()
+        cloudAnalysis.renamePSCoordSizeBinB()
+        iceAnalysis.renamePSCoordSizeBinB()
+        
+        
+        aeroAnalysis.packFilteredPSVariablewithSizeBinCoords(packing)
+        cloudAnalysis.packFilteredPSVariablewithSizeBinCoords(packing)
+        iceAnalysis.packFilteredPSVariablewithSizeBinCoords(packing)
+        
+        aero = simulCol.getPSDataset()[aeroAnalysis.getFilteredPackedVariableName()]
+        cloud = simulCol.getPSDataset()[cloudAnalysis.getFilteredPackedVariableName()]
+        ice = simulCol.getPSDataset()[iceAnalysis.getFilteredPackedVariableName()]
+        
         total = aero + cloud + ice
         
-        print(total)
+        aeroColor = Colorful.getDistinctColorList("red")
+        cloudColor = Colorful.getDistinctColorList("navy")
+        iceColor = Colorful.getDistinctColorList("cyan")
         
+        xstart = 2
+        xend = 33.05
+        
+        yend = 1.5
+        yticks = [0, 0.5, 1]
+        
+        print(total.values)
+        
+        figName = ["a)", "b)", "c)", "d)"]
+        
+        print("shape total", numpy.shape(total.values))
         for bini in range(packing):
-            coordName = aero.getSizeBinNameGroupedByBins()
+            ax = fig.getAxes(bini)
             
-            aeroBin = aero.isel( coordName  = bini)
-            cloudBin = cloud.isel( coordName = bini)
-            iceBin = ice.isel( coordName = bini)
+            aeroBin = aero[:,bini]
+            cloudBin = cloud[:,bini]
+            iceBin = ice[:,bini]
             
-            totalBin = total.isel( coordName = bini)
+            totalBin = total[:,bini]
             
             aeroFrac = aeroBin/totalBin
             cloudFrac = cloudBin/totalBin
             iceFrac = iceBin/totalBin
+            print(" ")
+            print(totalBin.sel(time = xstart, method ="nearest"))
+            totalBinRelative  = totalBin / totalBin.sel(time = xstart, method ="nearest")
             
-            totalBinRelative  = totalBin / totalBin.values[0]
             
+            
+            aeroFrac.plot(ax=ax, color = aeroColor)
+            cloudFrac.plot(ax=ax, color = cloudColor)
+            iceFrac.plot(ax=ax, color = iceColor)
+            print("totalBinRelative", max(totalBinRelative), min(totalBinRelative))
+            totalBinRelative.plot(ax = ax, color = "black")
             
             if bini == (packing - 1):
                 bininame = str(bini + 1 ) + " - 7"
             else:
                 bininame = str(bini +1)
-                
             
-        
+            if True:
+                
+                label = " ".join([figName[bini], "Bin", bininame + ",", "Total", r"$N_0$",  str(int(totalBin.values[0])) + ",", "\nMin", r"$N$", str(int(numpy.min(totalBin))), "$(kg^{-1})$"  ])
+                facecolor = "black"
+                
+                PlotTweak.setArtist(ax, {label:facecolor}, loc = (0.01, 0.67), framealpha = 0.8)
+            
+                if bini == 0:
+                    collectionOfLabelsColors = {"Aerosol": aeroColor, "Cloud": cloudColor, "Ice": iceColor}
+                    PlotTweak.setArtist(ax, collectionOfLabelsColors, ncol = 3, loc = (0.5,1.05))
+            
+            ##############
+            ax.set_title("")
+            PlotTweak.setXLim(ax, start = xstart, end = xend)
+            PlotTweak.setYLim(ax, end = yend)
+            
+            PlotTweak.setYticks(ax, yticks)
+            yShownLabelsBoolean = PlotTweak.setYLabels(ax, yticks, end = 1, interval = 1, integer=False)
+            PlotTweak.setYTickSizes(ax, yShownLabelsBoolean)
+            
+            xticks = PlotTweak.setXticks(ax, start = xstart, end = xend, interval = 1)
+            shownLabelsBoolean = PlotTweak.setXLabels(ax, xticks, end = xend, interval = 4)
+            PlotTweak.setXTickSizes(ax, shownLabelsBoolean)
+            
+            PlotTweak.setYaxisLabel(ax,"")
+            if bini in [2,3]:
+                PlotTweak.setXaxisLabel(ax,"Time", "h")
+            else:
+                PlotTweak.setXaxisLabel(ax,"")
+                PlotTweak.hideXTickLabels(ax)
+                
+            if bini in [1,3]:
+                PlotTweak.hideYTickLabels(ax)
+            ###########
+            
+        fig.save()    
     
     def figure7(self):
         
