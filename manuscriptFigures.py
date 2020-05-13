@@ -459,21 +459,27 @@ class ManuscriptFigures:
         fig.save()
     
     def figure6(self):
+        debug = False
+        
         packing = 4
+        xstart = 2.1
+        xend = 33.0
+        yend = 1.5
         
         simulation = "Prognostic_48h"
         simulCol = self.simulationCollection[simulation]
         simulCol.getPSDataset()
-        
-        
         simulCol.setTimeCoordToHours()
         
-        fig = Figure(self.figurefolder,"figure6", ncols = 2, nrows = 2, hspace=0.1, bottom = 0.14, left=0.05, top=0.9, wspace = 0.06)
+        simulCol.sliceByTimePSDataset(xstart, xend)
+        
+        
+        fig = Figure(self.figurefolder,"figure6", ncols = 2, nrows = 2,
+                     hspace=0.1, bottom = 0.10, left=0.05, top=0.93, wspace = 0.06, right=0.99, figsize = [12/2.54, 4])
         
         aeroAnalysis  = SimulationDataAnalysis( simulCol, "P_Nabb")
         cloudAnalysis = SimulationDataAnalysis( simulCol, "P_Ncbb")
         iceAnalysis   = SimulationDataAnalysis( simulCol, "P_Nibb")
-    
         
         aeroAnalysis.filterPSVariableInCloud()
         cloudAnalysis.filterPSVariableInCloud()
@@ -484,10 +490,21 @@ class ManuscriptFigures:
         iceAnalysis.renamePSCoordSizeBinB()
         
         
+        if debug: print(simulCol.getPSDataset()[aeroAnalysis.getFilteredVariableName()].sel(time = xstart, method ="nearest"))
+        if debug: print(simulCol.getPSDataset()[cloudAnalysis.getFilteredVariableName()].sel(time = xstart, method ="nearest"))
+        if debug: print(simulCol.getPSDataset()[iceAnalysis.getFilteredVariableName()].sel(time = xstart, method ="nearest"))
+        
+        
         aeroAnalysis.packFilteredPSVariablewithSizeBinCoords(packing)
         cloudAnalysis.packFilteredPSVariablewithSizeBinCoords(packing)
         iceAnalysis.packFilteredPSVariablewithSizeBinCoords(packing)
         
+        if debug: print(simulCol.getPSDataset()[aeroAnalysis.getFilteredPackedVariableName()].sel(time = xstart, method ="nearest"))
+        if debug: print(simulCol.getPSDataset()[cloudAnalysis.getFilteredPackedVariableName()].sel(time = xstart, method ="nearest"))
+        if debug: print(simulCol.getPSDataset()[cloudAnalysis.getFilteredPackedVariableName()].sel(time = xstart, method ="nearest"))
+        
+        if debug: print(simulCol.getPSDataset()[aeroAnalysis.getFilteredPackedVariableName()].coords)
+
         aero = simulCol.getPSDataset()[aeroAnalysis.getFilteredPackedVariableName()]
         cloud = simulCol.getPSDataset()[cloudAnalysis.getFilteredPackedVariableName()]
         ice = simulCol.getPSDataset()[iceAnalysis.getFilteredPackedVariableName()]
@@ -498,17 +515,13 @@ class ManuscriptFigures:
         cloudColor = Colorful.getDistinctColorList("navy")
         iceColor = Colorful.getDistinctColorList("cyan")
         
-        xstart = 2
-        xend = 33.05
+        yticks = [0, 0.5, 1, 1.5]
         
-        yend = 1.5
-        yticks = [0, 0.5, 1]
-        
-        print(total.values)
+        if debug: print(total.values)
         
         figName = ["a)", "b)", "c)", "d)"]
         
-        print("shape total", numpy.shape(total.values))
+        if debug: print("shape total", numpy.shape(total.values))
         for bini in range(packing):
             ax = fig.getAxes(bini)
             
@@ -521,16 +534,24 @@ class ManuscriptFigures:
             aeroFrac = aeroBin/totalBin
             cloudFrac = cloudBin/totalBin
             iceFrac = iceBin/totalBin
-            print(" ")
-            print(totalBin.sel(time = xstart, method ="nearest"))
-            totalBinRelative  = totalBin / totalBin.sel(time = xstart, method ="nearest")
             
+            if debug: print(" ")
+            if debug: print("aerobin", aeroBin.sel(time = xstart, method ="nearest"), numpy.max(aero[:,:]))
+            if debug: print("cloudBin", cloudBin.sel(time = xstart, method ="nearest"), numpy.max(cloud[:,:]))
+            if debug: print("iceBin", iceBin.sel(time = xstart, method ="nearest"), numpy.max(ice[:,:]))
+            
+            pointZero = totalBin.sel(time = xstart, method ="nearest")
+            
+            pointEnd = totalBin.sel(time = xend, method ="nearest").values
+            if debug: print("pointZero", pointZero)
+            
+            totalBinRelative  = totalBin / pointZero
             
             
             aeroFrac.plot(ax=ax, color = aeroColor)
             cloudFrac.plot(ax=ax, color = cloudColor)
             iceFrac.plot(ax=ax, color = iceColor)
-            print("totalBinRelative", max(totalBinRelative), min(totalBinRelative))
+            if debug: print("totalBinRelative", max(totalBinRelative.values), min(totalBinRelative.values))
             totalBinRelative.plot(ax = ax, color = "black")
             
             if bini == (packing - 1):
@@ -540,14 +561,14 @@ class ManuscriptFigures:
             
             if True:
                 
-                label = " ".join([figName[bini], "Bin", bininame + ",", "Total", r"$N_0$",  str(int(totalBin.values[0])) + ",", "\nMin", r"$N$", str(int(numpy.min(totalBin))), "$(kg^{-1})$"  ])
+                label = " ".join([figName[bini], "Bin", bininame + ",", "Total", r"$N_0$",  str(int(pointZero)) + ",", "\nMin", r"$N$", str(int(pointEnd)), "$(kg^{-1})$"  ])
                 facecolor = "black"
                 
-                PlotTweak.setArtist(ax, {label:facecolor}, loc = (0.01, 0.67), framealpha = 0.8)
+                PlotTweak.setArtist(ax, {label:facecolor}, loc = (0.01, 0.74), framealpha = 0.8)
             
                 if bini == 0:
                     collectionOfLabelsColors = {"Aerosol": aeroColor, "Cloud": cloudColor, "Ice": iceColor}
-                    PlotTweak.setArtist(ax, collectionOfLabelsColors, ncol = 3, loc = (0.5,1.05))
+                    PlotTweak.setArtist(ax, collectionOfLabelsColors, ncol = 3, loc = (0.47,1.02))
             
             ##############
             ax.set_title("")
