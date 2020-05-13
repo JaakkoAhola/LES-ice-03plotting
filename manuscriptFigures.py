@@ -40,9 +40,6 @@ class ManuscriptFigures:
         
         simulationList = Figure2SimulationList()
         
-        
-        
-        
         for k in simulationList.getAllSimulations():
             self.simulationCollection[k].getTSDataset()
             self.simulationCollection[k].setTimeCoordToHours()
@@ -54,6 +51,7 @@ class ManuscriptFigures:
         lwpYlimit = 60
         iwpYlimit = 21
         yPositionFrac = 0.92
+        
         # figA
         ax = fig.getAxes(0)
         for k in simulationList.getIce0Simulations():
@@ -70,7 +68,6 @@ class ManuscriptFigures:
                                "lwp_bar", conversionFactor=1000.)
         PlotTweak.setAnnotation(ax, "b) ICE1 liquid water path", xPosition=0.2, yPosition= lwpYlimit*yPositionFrac)
             
-        
         # figC
         ax = fig.getAxes(3)
         for k in simulationList.getIce1Simulations():
@@ -79,8 +76,6 @@ class ManuscriptFigures:
                                "iwp_bar", conversionFactor=1000.)
         PlotTweak.setAnnotation(ax, "c) ICE1 ice water path", xPosition=0.2, yPosition= iwpYlimit*yPositionFrac)
             
-            
-        
         # figD
         ax = fig.getAxes(4)
         for k in simulationList.getIce4Simulations():
@@ -120,21 +115,18 @@ class ManuscriptFigures:
             end = 8
             PlotTweak.setXLim(ax, end = end)
             Plot.getVerticalLine(ax, 2)
+            
             if i in [4,5]:
                 PlotTweak.setXaxisLabel(ax,"Time", "h")
             else:
                  PlotTweak.setXaxisLabel(ax,"")
                  PlotTweak.hideXTickLabels(ax)
         
-            # set xticks
             ticks = PlotTweak.setXticks(ax, end = end, interval = 0.5, integer=False)
-            # set xlabels
             ticks = [int(k) for k in  ticks]
             shownLabelsBoolean = PlotTweak.setXLabels(ax, ticks, end = end, interval = 2)
-            # set xtick sizes
             PlotTweak.setXTickSizes(ax, shownLabelsBoolean)
             
-        
         # empty space
         ax = fig.getAxes(1)
         ax.axis("off")
@@ -146,7 +138,6 @@ class ManuscriptFigures:
                              label='BULK')]
     
         ax.legend(handles=legend_elements, loc='center', frameon = True, framealpha = 1.0)
-            
             
         fig.save()
         
@@ -169,8 +160,6 @@ class ManuscriptFigures:
             self.simulationCollection[k].getTSDataset()
             self.simulationCollection[k].setTimeCoordToHours()
         
-        
-        
         lwpYlimit = 60
         iwpYlimit = 22
         
@@ -178,7 +167,6 @@ class ManuscriptFigures:
         yPositionFrac = 0.92
         
         # figA
-        
         ax = fig.getAxes(0)
         for k in simulationList:
             Plot.getTimeseries(ax,
@@ -192,7 +180,6 @@ class ManuscriptFigures:
         ticks = PlotTweak.setYticks(ax, end = end, interval = 2)
         shownLabelsBoolean = PlotTweak.setYLabels(ax, ticks, end = end, interval = 10)
         PlotTweak.setYTickSizes(ax, shownLabelsBoolean)
-        
         
         # figB
         ax = fig.getAxes(1)
@@ -238,21 +225,16 @@ class ManuscriptFigures:
             
         fig.save()
         
-        
-        
     def figure4(self):
         
         fig = Figure(self.figurefolder,"figure4", ncols = 2, nrows = 3, left=0.15, wspace=0.4)
         
         simulationList = ["Prognostic_48h", "ICE4_24h"]
         
-        
         for k in simulationList:
             self.simulationCollection[k].getTSDataset()
             self.simulationCollection[k].getNCDataset()
             self.simulationCollection[k].setTimeCoordToHours()
-        
-        
         
         lwpYlimit = 60
         iwpYlimit = 21
@@ -261,7 +243,6 @@ class ManuscriptFigures:
         yPositionFrac = 0.91
         
         # figA
-        
         ax = fig.getAxes(0)
         for k in simulationList:
             Plot.getTimeseries(ax,
@@ -275,7 +256,6 @@ class ManuscriptFigures:
         ticks = PlotTweak.setYticks(ax, end = end, interval = 2)
         shownLabelsBoolean = PlotTweak.setYLabels(ax, ticks, end = end, interval = 10)
         PlotTweak.setYTickSizes(ax, shownLabelsBoolean)
-        
         
         # figB
         ax = fig.getAxes(1)
@@ -293,8 +273,6 @@ class ManuscriptFigures:
         shownLabelsBoolean = PlotTweak.setYLabels(ax, ticks, end = end, interval = 3)
         PlotTweak.setYTickSizes(ax, shownLabelsBoolean)
             
-            
-        
         # figC
         ax = fig.getAxes(2)
         for k in simulationList:
@@ -310,7 +288,6 @@ class ManuscriptFigures:
         
         shownLabelsBoolean = PlotTweak.setYLabels(ax, ticks, end = end, interval = 1)
         PlotTweak.setYTickSizes(ax, shownLabelsBoolean)
-            
             
         # figD
         ax = fig.getAxes(3)
@@ -349,7 +326,6 @@ class ManuscriptFigures:
             Plot.getVerticalLine(ax, 2)
             Plot.getVerticalLine(ax, 24)
             
-            
             if i in [3,4]:
                 PlotTweak.setXaxisLabel(ax,"Time", "h")
             else:
@@ -360,7 +336,6 @@ class ManuscriptFigures:
             shownLabelsBoolean = PlotTweak.setXLabels(ax, ticks, end = end, interval = 4)
             PlotTweak.setXTickSizes(ax, shownLabelsBoolean)
             
-        
         # empty space
         ax = fig.getAxes(5)
         ax.axis("off")
@@ -372,7 +347,6 @@ class ManuscriptFigures:
         ax.legend(handles=legend_elements, loc='center', frameon = True, framealpha = 1.0)
             
         fig.save()
-        
     
     def figure5(self):
         
@@ -410,11 +384,6 @@ class ManuscriptFigures:
             shownLabelsBoolean = PlotTweak.setYLabels(ax, ticks, end = end, interval = 200)
             PlotTweak.setYTickSizes(ax, shownLabelsBoolean)
             
-            
-            
-            
-        
-        
         for i in range(3):
             ax = fig.getAxes(i)
             end = 33.05
@@ -456,11 +425,10 @@ class ManuscriptFigures:
         shownLabelsBoolean = Data.getMaskedList(logaritmicLevels, numpy.arange(-11,-19,-1))
         PlotTweak._hideLabels(cax.xaxis, shownLabelsBoolean)
         PlotTweak.setXTickSizes(cax, shownLabelsBoolean)
+        ###
         fig.save()
     
     def figure6(self):
-        debug = False
-        
         packing = 4
         xstart = 2.1
         xend = 33.0
@@ -472,7 +440,6 @@ class ManuscriptFigures:
         simulCol.setTimeCoordToHours()
         
         simulCol.sliceByTimePSDataset(xstart, xend)
-        
         
         fig = Figure(self.figurefolder,"figure6", ncols = 2, nrows = 2,
                      hspace=0.1, bottom = 0.10, left=0.05, top=0.93, wspace = 0.06, right=0.99, figsize = [12/2.54, 4])
@@ -489,22 +456,10 @@ class ManuscriptFigures:
         cloudAnalysis.renamePSCoordSizeBinB()
         iceAnalysis.renamePSCoordSizeBinB()
         
-        
-        if debug: print(simulCol.getPSDataset()[aeroAnalysis.getFilteredVariableName()].sel(time = xstart, method ="nearest"))
-        if debug: print(simulCol.getPSDataset()[cloudAnalysis.getFilteredVariableName()].sel(time = xstart, method ="nearest"))
-        if debug: print(simulCol.getPSDataset()[iceAnalysis.getFilteredVariableName()].sel(time = xstart, method ="nearest"))
-        
-        
         aeroAnalysis.packFilteredPSVariablewithSizeBinCoords(packing)
         cloudAnalysis.packFilteredPSVariablewithSizeBinCoords(packing)
         iceAnalysis.packFilteredPSVariablewithSizeBinCoords(packing)
         
-        if debug: print(simulCol.getPSDataset()[aeroAnalysis.getFilteredPackedVariableName()].sel(time = xstart, method ="nearest"))
-        if debug: print(simulCol.getPSDataset()[cloudAnalysis.getFilteredPackedVariableName()].sel(time = xstart, method ="nearest"))
-        if debug: print(simulCol.getPSDataset()[cloudAnalysis.getFilteredPackedVariableName()].sel(time = xstart, method ="nearest"))
-        
-        if debug: print(simulCol.getPSDataset()[aeroAnalysis.getFilteredPackedVariableName()].coords)
-
         aero = simulCol.getPSDataset()[aeroAnalysis.getFilteredPackedVariableName()]
         cloud = simulCol.getPSDataset()[cloudAnalysis.getFilteredPackedVariableName()]
         ice = simulCol.getPSDataset()[iceAnalysis.getFilteredPackedVariableName()]
@@ -517,11 +472,9 @@ class ManuscriptFigures:
         
         yticks = [0, 0.5, 1, 1.5]
         
-        if debug: print(total.values)
         
         figName = ["a)", "b)", "c)", "d)"]
         
-        if debug: print("shape total", numpy.shape(total.values))
         for bini in range(packing):
             ax = fig.getAxes(bini)
             
@@ -535,15 +488,9 @@ class ManuscriptFigures:
             cloudFrac = cloudBin/totalBin
             iceFrac = iceBin/totalBin
             
-            if debug: print(" ")
-            if debug: print("aerobin", aeroBin.sel(time = xstart, method ="nearest"), numpy.max(aero[:,:]))
-            if debug: print("cloudBin", cloudBin.sel(time = xstart, method ="nearest"), numpy.max(cloud[:,:]))
-            if debug: print("iceBin", iceBin.sel(time = xstart, method ="nearest"), numpy.max(ice[:,:]))
-            
             pointZero = totalBin.sel(time = xstart, method ="nearest")
             
             pointEnd = totalBin.sel(time = xend, method ="nearest").values
-            if debug: print("pointZero", pointZero)
             
             totalBinRelative  = totalBin / pointZero
             
@@ -551,7 +498,6 @@ class ManuscriptFigures:
             aeroFrac.plot(ax=ax, color = aeroColor)
             cloudFrac.plot(ax=ax, color = cloudColor)
             iceFrac.plot(ax=ax, color = iceColor)
-            if debug: print("totalBinRelative", max(totalBinRelative.values), min(totalBinRelative.values))
             totalBinRelative.plot(ax = ax, color = "black")
             
             if bini == (packing - 1):
@@ -617,7 +563,6 @@ class ManuscriptFigures:
         startList = [0, 0, -5]
         endList = [0.2, 0.025,2.5]
         
-        
         xPositionList = []
         
         for ind, muuttuja in enumerate(muuttujalista):
@@ -636,12 +581,6 @@ class ManuscriptFigures:
                 
                 data.sel(time = aikapiste, method="nearest").plot( y="zt", ax = ax, color = colorlist[aikaInd])
                 
-            
-                
-                
-                
-            #
-    
         end = 1000
         for ind in range(3):
             ax = fig.getAxes(ind)
@@ -652,18 +591,8 @@ class ManuscriptFigures:
             PlotTweak.setYTickSizes(ax, shownLabelsBoolean)
             PlotTweak.setAnnotation(ax, annotation[ind], xPosition= xPositionList[ind], yPosition= yPositionFrac*end)
             
-            
-            
         
-        # for i in range(3):
-        #     if i in [0,2]:
-        #         ax = fig.getAxes(i)
-        #         PlotTweak.setYaxisLabel(ax,"Height", "m")
-        #     else:
-        #         PlotTweak.setYaxisLabel(ax,"")
-        #         PlotTweak.hideYTickLabels(ax)
-        
-        
+        ###
         ind = 0
         ax = fig.getAxes(ind)
         start = startList[ind]
@@ -674,10 +603,7 @@ class ManuscriptFigures:
         
         matplotlib.pyplot.setp(ax.get_xticklabels()[-1], visible=False)
         
-        # ticks = PlotTweak.setXticks(ax, end = end, interval = 0.05/2, integer=False)
-        # shownLabelsBoolean = PlotTweak.setXLabels(ax, ticks, end = end, interval = 0.05, integer = False)
-        # PlotTweak.setXTickSizes(ax, shownLabelsBoolean)
-        
+        ###
         ind = 1
         ax = fig.getAxes(ind)
         start = startList[ind]
@@ -693,7 +619,7 @@ class ManuscriptFigures:
         PlotTweak.setXTickSizes(ax, shownLabelsBoolean)
         matplotlib.pyplot.setp(ax.get_xticklabels()[-1], visible=False)
         
-        
+        ###
         ind = 2
         ax = fig.getAxes(ind)
         start = startList[ind]
@@ -707,10 +633,6 @@ class ManuscriptFigures:
         ax.set_xticks(xticksLog)
         ax.set_xticklabels(xlabelsLog)
     
-        # ticks = PlotTweak.setXticks(ax, end = end, interval = 0.5)
-        # shownLabelsBoolean = PlotTweak.setXLabels(ax, ticks, end = end, interval = 4)
-        # PlotTweak.setXTickSizes(ax, shownLabelsBoolean)
-        
         # empty space
         ax = fig.getAxes(3)
         ax.axis("off")
@@ -757,12 +679,6 @@ class Figure2SimulationList():
     
     def getUCLALESSALSASimulations(self):
         return self.uclalesSimulations
-        
-        
-    
-    
-
-        
 
 def main():
 
@@ -781,9 +697,6 @@ def main():
         figObject.figure6()
     if False:
         figObject.figure7()        
-    
-    
-     
     
 if __name__ == "__main__":
     start = time.time()
