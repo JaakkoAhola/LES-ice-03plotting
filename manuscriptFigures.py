@@ -685,17 +685,17 @@ def main():
     figObject = ManuscriptFigures("/home/aholaj/Nextcloud/figures_updated/manuscriptSimulationData.csv", 
                                   "/home/aholaj/Nextcloud/figures_updated")
     
-    if False:
+    if True:
         figObject.figure2()
-    if False:
+    if True:
         figObject.figure3()
-    if False:
+    if True:
         figObject.figure4()
-    if False:
+    if True:
         figObject.figure5()
     if True:
         figObject.figure6()
-    if False:
+    if True:
         figObject.figure7()        
     
 if __name__ == "__main__":
