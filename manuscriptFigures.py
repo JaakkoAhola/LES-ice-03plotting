@@ -43,14 +43,21 @@ class ManuscriptFigures:
         for k in simulationList.getAllSimulations():
             self.simulationCollection[k].getTSDataset()
             self.simulationCollection[k].setTimeCoordToHours()
+            
+            if self.simulationCollection[k].getLabel() == "BULK":
+                self.simulationCollection[k].setZorder(1)
+            elif self.simulationCollection[k].getLabel() == "BIN":
+                self.simulationCollection[k].setZorder(2)
+            else:
+                self.simulationCollection[k].setZorder(3)
         
         for k in simulationList.getUCLALESSALSASimulations():
-            self.simulationCollection[k].setLineWidth(matplotlib.rcParams["lines.linewidth"]*2)
+            self.simulationCollection[k].setLineWidth(matplotlib.rcParams["lines.linewidth"]*1.5)
             self.simulationCollection[k].setColor(Colorful.getDistinctColorList("green"))
         
         lwpYlimit = 60
         iwpYlimit = 21
-        yPositionFrac = 0.92
+        yPositionFrac = 0.91
         
         # figA
         ax = fig.getAxes(0)
