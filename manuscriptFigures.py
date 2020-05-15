@@ -13,9 +13,8 @@ import pandas
 import time
 import sys
 from matplotlib.patches import Patch
-from matplotlib.ticker import ScalarFormatter,AutoMinorLocator
 
-sys.path.append("/home/aholaj/Nextcloud/000_WORK/000_Codex/LES-superfolder/LES-03plotting")
+sys.path.append("../LES-03plotting")
 from InputSimulation import InputSimulation
 from Figure import Figure
 from Plot import Plot
@@ -41,8 +40,16 @@ class ManuscriptFigures:
         simulationList = Figure2SimulationList()
         
         for k in simulationList.getAllSimulations():
-            self.simulationCollection[k].getTSDataset()
-            self.simulationCollection[k].setTimeCoordToHours()
+            try: 
+                self.simulationCollection[k].getTSDataset()
+                self.simulationCollection[k].setTimeCoordToHours()
+            except FileNotFoundError:
+                if "ovchinnikov" in str(self.simulationCollection[k].getFolder()).lower():
+                    print("Ovchinnikov data is not available. Continue with existing simulations")
+                    continue
+                else:
+                    print("{0} data missing from {1}, make sure you have set your \
+                          folder and environment variables correctly".format(k, self.simulationCollection[k].getFolder()))
             
             if self.simulationCollection[k].getLabel() == "BULK":
                 self.simulationCollection[k].setZorder(1)
@@ -89,7 +96,7 @@ class ManuscriptFigures:
             Plot.getTimeseries(ax,
                                self.simulationCollection[k],
                                "lwp_bar", conversionFactor=1000.)
-        PlotTweak.setAnnotation(ax, "d) ICE1 liquid water path", xPosition=0.2, yPosition= lwpYlimit*yPositionFrac)
+        PlotTweak.setAnnotation(ax, "d) ICE4 liquid water path", xPosition=0.2, yPosition= lwpYlimit*yPositionFrac)
         
         # figE
         ax = fig.getAxes(5)
@@ -97,7 +104,7 @@ class ManuscriptFigures:
             Plot.getTimeseries(ax,
                                self.simulationCollection[k],
                                "iwp_bar", conversionFactor=1000.)
-        PlotTweak.setAnnotation(ax, "e) ICE1 ice water path", xPosition=0.2, yPosition= iwpYlimit*yPositionFrac)
+        PlotTweak.setAnnotation(ax, "e) ICE4 ice water path", xPosition=0.2, yPosition= iwpYlimit*yPositionFrac)
         
         for i in [0,2,4]: #LWP figures
             ax = fig.getAxes(i)
@@ -425,13 +432,14 @@ class ManuscriptFigures:
                        Patch(facecolor=orange,
                              label='Cloud base')]
     
-        ax.legend(handles=legend_elements, loc=(0.07,0), frameon = True, framealpha = 1.0)
+        ax.legend(handles=legend_elements, loc=(0.07,-0.02), frameon = True, framealpha = 1.0)
         cax = matplotlib.pyplot.axes([0.6, 0.4, 0.33, 0.03])
         Plot.getColorBar(im,cax,logaritmicLevels)
         
         shownLabelsBoolean = Data.getMaskedList(logaritmicLevels, numpy.arange(-11,-19,-1))
         PlotTweak._hideLabels(cax.xaxis, shownLabelsBoolean)
         PlotTweak.setXTickSizes(cax, shownLabelsBoolean)
+        PlotTweak.setXaxisLabel(cax, "", unit="kg\ kg^{-1}")
         ###
         fig.save()
     
