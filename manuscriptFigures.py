@@ -12,6 +12,7 @@ import numpy
 import pandas
 import time
 import sys
+import os
 from matplotlib.patches import Patch
 
 sys.path.append("../LES-03plotting")
@@ -697,8 +698,8 @@ class Figure2SimulationList():
 
 def main():
 
-    figObject = ManuscriptFigures("/home/aholaj/Nextcloud/figures_updated/manuscriptSimulationData.csv", 
-                                  "/home/aholaj/Nextcloud/figures_updated")
+    figObject = ManuscriptFigures(os.environ["SIMULATIONFIGUREFOLDER"] + "/manuscriptSimulationData.csv", 
+                                  os.environ["SIMULATIONFIGUREFOLDER"])
     
     if True:
         figObject.figure2()
