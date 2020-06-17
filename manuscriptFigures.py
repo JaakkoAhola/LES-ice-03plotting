@@ -147,9 +147,9 @@ class ManuscriptFigures:
         ax.axis("off")
         legend_elements = [Patch(facecolor=self.simulationCollection["ICE0_8h"].getColor(),
                              label='UCLALES-SALSA'),
-                       Patch(facecolor=self.simulationCollection["COSMO_ice0"].getColor(),
-                             label='BIN'),
                        Patch(facecolor=self.simulationCollection["SAM-bin_ice0"].getColor(),
+                             label='BIN'),
+                       Patch(facecolor=self.simulationCollection["COSMO_ice0"].getColor(),
                              label='BULK')]
     
         ax.legend(handles=legend_elements, loc='center', frameon = True, framealpha = 1.0)
