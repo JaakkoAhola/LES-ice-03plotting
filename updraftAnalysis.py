@@ -34,7 +34,7 @@ class ManuscriptFigures:
         self.figurefolder = figurefolder
         self.datafolder = pathlib.Path(datafolder)
         self.xstart = 2.1
-        self.xend = 2.5#33.0
+        self.xend = 33.0
         
         self.simulation = Simulation( self.datafolder,"Prognostic", Colorful.getDistinctColorList("red"))
         
@@ -90,7 +90,6 @@ class ManuscriptFigures:
         # print(" ")
         
         # print(aero.sel(zt=200, method = "nearest"))
-        sys.exit()
         total = aero + cloud + ice
         
         
@@ -100,7 +99,6 @@ class ManuscriptFigures:
         
         yticks = [0, 0.5, 1, 1.5]
         
-        sys.exit()
         
         heightList = [0,400,800]
         
