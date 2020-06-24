@@ -111,7 +111,8 @@ class ManuscriptFigures:
 
         for height in heightList:
 
-            fig = Figure(self.figurefolder,"figureUpdraft" + str(height), ncols = 2, nrows =packing)
+            fig = Figure(self.figurefolder,"figureUpdraft" + str(height), ncols = 2, nrows =packing, figsize = [7,14])
+            print("figsize", fig.getFigSize())
             datasetHeight = dataset.sel(zt = height, method="nearest")
             
             for draftIndex in range(1):
@@ -214,9 +215,9 @@ class ManuscriptFigures:
 
 
 
-def main(folder = os.environ["SIMULATIONFIGUREFOLDER"], datafolder = "/home/aholaj/Data/BinnedData"):
+def main(folder = os.environ["SIMULATIONFIGUREFOLDER"], datafolder = "/home/aholaj/Data/BinnedData", xend = 33.0):
 
-    figObject = ManuscriptFigures(folder, datafolder)
+    figObject = ManuscriptFigures(folder, datafolder, xend)
 
 
     if True:
@@ -228,7 +229,6 @@ if __name__ == "__main__":
         main( folder = sys.argv[1], datafolder = sys.argv[2], xend= sys.argv[3])
     except IndexError:
         main()
-    main()
     
     end = time.time()
     print("Script completed in " + str(round((end - start),0)) + " seconds")
