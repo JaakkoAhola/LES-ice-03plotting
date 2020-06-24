@@ -119,7 +119,7 @@ class ManuscriptFigures:
                 for bini in range(packing):
                     
                     
-                    ax = fig.getAxes(bini)
+                    ax = fig.getAxes( bini*2 + draftIndex)
                     
                     aeroHeight = dataDraft["S_Nabb"].mean(dim=["xt","ym"], skipna = True)
                     cloudHeight = dataDraft["S_Ncbb"].mean(dim=["xt","ym"], skipna = True)
