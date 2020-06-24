@@ -102,20 +102,26 @@ class ManuscriptFigures:
         cloudColor = Colorful.getDistinctColorList("navy")
         iceColor = Colorful.getDistinctColorList("cyan")
 
-        yticks = [0, 0.5, 1, 1.5]
+        yticks = numpy.arange(0, 3.5+0.1, 0.5)
 
 
-        heightList = [0,400,800]
+        heightList = [0,400,800,355, 705, 785, 850] # 355 aina pilven alapuolella,
+                                           #    705 aina pilvessä 
+                                           #    785 aluksi pilvessä, lopussa ei
+                                           #    850 aina pilven yläpuolella
 
         draftLimit = 1e-4
 
         for height in heightList:
-
-            fig = Figure(self.figurefolder,"figureUpdraft" + str(height), ncols = 2, nrows =packing, figsize = [7,14])
+            realHeight = dataset.zt.sel(zt = height, method="nearest").item()
+            fig = Figure(self.figurefolder,"figureUpdraft_z_" + "{0:.0f}".format(realHeight),
+                         ncols = 2, nrows =packing,
+                         figsize = [8,16], wspace=0.06, left=0.05, bottom = 0.03, top=0.96, right=0.98)
+            
             print("figsize", fig.getFigSize())
             datasetHeight = dataset.sel(zt = height, method="nearest")
             
-            for draftIndex in range(1):
+            for draftIndex in range(2):
                 if draftIndex == 0:
                     dataDraft = datasetHeight.where(datasetHeight["w"] > draftLimit, drop=True)
                     drafType = "Up-draft"
@@ -125,9 +131,9 @@ class ManuscriptFigures:
 
                 for bini in range(packing):
                     print("")
-                    print("height", height, drafType,"bini", bini)
-
-                    ax = fig.getAxes( bini*2 + draftIndex)
+                    print("height", realHeight, drafType,"bini", bini)
+                    axIndex =  bini*2 + draftIndex
+                    ax = fig.getAxes(axIndex)
 
                     aeroHeight = dataDraft["S_Nabb"].mean(dim=["xt","yt"], skipna = True)
                     cloudHeight = dataDraft["S_Ncbb"].mean(dim=["xt","yt"], skipna = True)
@@ -178,9 +184,9 @@ class ManuscriptFigures:
 
                         PlotTweak.setArtist(ax, {label:facecolor}, loc = (0.01, 0.74), framealpha = 0.8)
 
-                        if bini == 0:
+                        if axIndex == 0:
                             collectionOfLabelsColors = {"Aerosol": aeroColor, "Cloud": cloudColor, "Ice": iceColor}
-                            PlotTweak.setArtist(ax, collectionOfLabelsColors, ncol = 3, loc = (0.47,1.02))
+                            PlotTweak.setArtist(ax, collectionOfLabelsColors, ncol = 3, loc = (0.75,1.12))
 
                     ##############
                     ax.set_title("")
@@ -188,7 +194,7 @@ class ManuscriptFigures:
                     PlotTweak.setYLim(ax, end = yend)
 
                     PlotTweak.setYticks(ax, yticks)
-                    yShownLabelsBoolean = PlotTweak.setYLabels(ax, yticks, end = 1, interval = 1, integer=False)
+                    yShownLabelsBoolean = PlotTweak.setYLabels(ax, yticks, end = 3, interval = 1, integer=True)
                     PlotTweak.setYTickSizes(ax, yShownLabelsBoolean)
 
                     xticks = PlotTweak.setXticks(ax, start = self.xstart, end = self.xend, interval = 1)
@@ -196,15 +202,16 @@ class ManuscriptFigures:
                     PlotTweak.setXTickSizes(ax, shownLabelsBoolean)
 
                     PlotTweak.setYaxisLabel(ax,"")
-                    # if bini in [2,3]:
-                    #     PlotTweak.setXaxisLabel(ax,"Time", "h")
-                    # else:
-                    #     PlotTweak.setXaxisLabel(ax,"")
-                    #     PlotTweak.hideXTickLabels(ax)
+                    if axIndex in [12,13]:
+                        PlotTweak.setXaxisLabel(ax,"Time", "h")
+                    else:
+                        PlotTweak.setXaxisLabel(ax,"")
+                        PlotTweak.hideXTickLabels(ax)
 
-                    # if bini in [1,3]:
-                    #     PlotTweak.hideYTickLabels(ax)
-                    ###########
+                    if draftIndex == 1:
+                        PlotTweak.hideYTickLabels(ax)
+                    if axIndex == 0:
+                        ax.text( 0.95*self.xend, yticks[-1]+yticks[1]*0.25, PlotTweak.getUnitLabel("Height\ " + f"{realHeight:.0f}", "m"), size=8)
 
                 # end bini for loop
             # end draftIndex for loop
