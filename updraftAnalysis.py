@@ -226,7 +226,7 @@ def main(folder = os.environ["SIMULATIONFIGUREFOLDER"], datafolder = "/home/ahol
 if __name__ == "__main__":
     start = time.time()
     try:
-        main( folder = sys.argv[1], datafolder = sys.argv[2], xend= sys.argv[3])
+        main( folder = sys.argv[1], datafolder = sys.argv[2], xend= float(sys.argv[3]))
     except IndexError:
         main()
     
