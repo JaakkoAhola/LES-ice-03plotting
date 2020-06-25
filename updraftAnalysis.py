@@ -105,12 +105,15 @@ class ManuscriptFigures:
         yticks = numpy.arange(0, 3.5+0.1, 0.5)
 
 
-        heightList = [0,400,800,355, 705, 785, 850] # 355 aina pilven alapuolella,
-                                           #    705 aina pilvessä 
-                                           #    785 aluksi pilvessä, lopussa ei
-                                           #    850 aina pilven yläpuolella
-
-        draftLimit = 1e-4
+        heightList = {0:"Surface",
+                200:"",
+                400:"",
+                355:"Always below cloud base",
+                705:"Always in-cloud",
+                785:"At the beginning in-cloud, At end above cloud top",
+                850:"Always above cloud top"}
+         
+        draftLimit = 1e-3
 
         for height in heightList:
             realHeight = dataset.zt.sel(zt = height, method="nearest").item()
@@ -143,14 +146,14 @@ class ManuscriptFigures:
                     cloudBin = cloudHeight[:,bini]
                     iceBin = iceHeight[:,bini]
 
-                    print(aeroBin)
-                    print("")
+                    #print(aeroBin)
+                    #print("")
 
-                    print(cloudBin)
-                    print("")
+                    #print(cloudBin)
+                    #print("")
 
-                    print(iceBin)
-                    print("")
+                    #print(iceBin)
+                    #print("")
 
                     totalBin = aeroBin + cloudBin + iceBin
 
@@ -177,8 +180,8 @@ class ManuscriptFigures:
 
                     bininame = str(bini +1)
                     if True:
-                        print("pointZero",pointZero, type(pointZero))
-                        print("pointEnd", pointEnd, type(pointEnd))
+                        #print("pointZero",pointZero, type(pointZero))
+                        #print("pointEnd", pointEnd, type(pointEnd))
                         label = " ".join([drafType, "Bin", bininame + ",", "Total", r"$N_0$",  str(int(pointZero)) + ",", "\nMin", r"$N$", str(int(pointEnd)), "$(kg^{-1})$"  ])
                         facecolor = "black"
 
@@ -211,7 +214,7 @@ class ManuscriptFigures:
                     if draftIndex == 1:
                         PlotTweak.hideYTickLabels(ax)
                     if axIndex == 0:
-                        ax.text( 0.95*self.xend, yticks[-1]+yticks[1]*0.25, PlotTweak.getUnitLabel("Height\ " + f"{realHeight:.0f}", "m"), size=8)
+                        ax.text( 0.95*self.xend, yticks[-1]+yticks[1]*0.25, PlotTweak.getUnitLabel("Height\ " + f"{realHeight:.0f}", "m")+ " " +  heightList[height], size=8)
 
                 # end bini for loop
             # end draftIndex for loop
