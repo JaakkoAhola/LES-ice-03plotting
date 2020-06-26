@@ -30,12 +30,14 @@ matplotlib.use("PDF")
 
 class ManuscriptFigures:
     
-    def __init__(self, figurefolder, datafolder, xend = 33.0):        
+    def __init__(self, figurefolder, datafolder, xend = 33.0, draftLimit = 1e-3):        
         
         self.figurefolder = figurefolder
         self.datafolder = pathlib.Path(datafolder)
         self.xstart = 2.1
         self.xend = xend
+        
+        self.draftLimit = draftLimit
         
         self.simulation = Simulation( self.datafolder,"Prognostic", Colorful.getDistinctColorList("red"))
 
@@ -113,8 +115,6 @@ class ManuscriptFigures:
                 785:"At the beginning in-cloud, At end above cloud top",
                 850:"Always above cloud top"}
          
-        draftLimit = 1e-3
-
         for height in heightList:
             realHeight = dataset.zt.sel(zt = height, method="nearest").item()
             fig = Figure(self.figurefolder,"figureUpdraft_z_" + "{0:.0f}".format(realHeight),
@@ -126,10 +126,10 @@ class ManuscriptFigures:
             
             for draftIndex in range(2):
                 if draftIndex == 0:
-                    dataDraft = datasetHeight.where(datasetHeight["w"] > draftLimit, drop=True)
+                    dataDraft = datasetHeight.where(datasetHeight["w"] > self.draftLimit, drop=True)
                     drafType = "Up-draft"
                 else:
-                    dataDraft = datasetHeight.where(datasetHeight["w"] < -draftLimit, drop=True)
+                    dataDraft = datasetHeight.where(datasetHeight["w"] < - self.draftLimit, drop=True)
                     drafType = "Down-draft"
 
                 for bini in range(packing):
@@ -225,9 +225,9 @@ class ManuscriptFigures:
 
 
 
-def main(folder = os.environ["SIMULATIONFIGUREFOLDER"], datafolder = "/home/aholaj/Data/BinnedData", xend = 33.0):
+def main(folder = os.environ["SIMULATIONFIGUREFOLDER"], datafolder = "/home/aholaj/Data/BinnedData", xend = 33.0, draftLimit = 1e-3):
 
-    figObject = ManuscriptFigures(folder, datafolder, xend)
+    figObject = ManuscriptFigures(folder, datafolder, xend, draftLimit)
 
 
     if True:
@@ -236,7 +236,7 @@ def main(folder = os.environ["SIMULATIONFIGUREFOLDER"], datafolder = "/home/ahol
 if __name__ == "__main__":
     start = time.time()
     try:
-        main( folder = sys.argv[1], datafolder = sys.argv[2], xend= float(sys.argv[3]))
+        main( folder = sys.argv[1], datafolder = sys.argv[2], xend= float(sys.argv[3]), draftLimit = float(sys.argv[4]))
     except IndexError:
         main()
     
