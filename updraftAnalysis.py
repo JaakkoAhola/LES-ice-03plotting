@@ -29,18 +29,18 @@ from Simulation import Simulation
 matplotlib.use("PDF")
 
 class ManuscriptFigures:
-    
-    def __init__(self, figurefolder, datafolder, xend = 33.0, draftLimit = 1e-3):        
-        
+
+    def __init__(self, figurefolder, datafolder, xend = 33.0, draftLimit = 1e-3):
+
         self.figurefolder = pathlib.Path(figurefolder)
         self.figurefolder.mkdir( parents=True, exist_ok = True )
-        
+
         self.datafolder = pathlib.Path(datafolder)
         self.xstart = 2.1
         self.xend = xend
-        
+
         self.draftLimit = draftLimit
-        
+
         self.simulation = Simulation( self.datafolder,"Prognostic", Colorful.getDistinctColorList("red"))
 
         print("Folders", self.figurefolder, self.datafolder)
@@ -116,16 +116,16 @@ class ManuscriptFigures:
                 705:"Always in-cloud",
                 785:"At the beginning in-cloud, At end above cloud top",
                 850:"Always above cloud top"}
-         
+
         for height in heightList:
             realHeight = dataset.zt.sel(zt = height, method="nearest").item()
             fig = Figure(self.figurefolder,"figureUpdraft_z_" + "{0:.0f}".format(realHeight),
                          ncols = 2, nrows =packing,
                          figsize = [8,16], wspace=0.06, left=0.05, bottom = 0.03, top=0.96, right=0.98)
-            
+
             print("figsize", fig.getFigSize())
             datasetHeight = dataset.sel(zt = height, method="nearest")
-            
+
             for draftIndex in range(2):
                 if draftIndex == 0:
                     dataDraft = datasetHeight.where(datasetHeight["w"] > self.draftLimit, drop=True)
@@ -139,6 +139,10 @@ class ManuscriptFigures:
                     print("height", realHeight, drafType,"bini", bini)
                     axIndex =  bini*2 + draftIndex
                     ax = fig.getAxes(axIndex)
+                    
+                    if dataDraft["w"].size == 0:
+                        ax.axis("off")
+                        continue
 
                     aeroHeight = dataDraft["S_Nabb"].mean(dim=["xt","yt"], skipna = True)
                     cloudHeight = dataDraft["S_Ncbb"].mean(dim=["xt","yt"], skipna = True)
@@ -216,7 +220,7 @@ class ManuscriptFigures:
                     if draftIndex == 1:
                         PlotTweak.hideYTickLabels(ax)
                     if axIndex == 0:
-                        ax.text( 0.95*self.xend, yticks[-1]+yticks[1]*0.25, PlotTweak.getUnitLabel("Height\ " + f"{realHeight:.0f}", "m")+ " " +  heightList[height], size=8)
+                        ax.text( 0.5*self.xend, yticks[-1]+yticks[1]*0.25, PlotTweak.getUnitLabel("Height\ " + f"{realHeight:.0f}", "m")+ " " +  heightList[height] + " limit: " + f"{self.draftLimit:.0e}"  , size=8)
 
                 # end bini for loop
             # end draftIndex for loop
@@ -238,9 +242,17 @@ def main(folder = os.environ["SIMULATIONFIGUREFOLDER"], datafolder = "/home/ahol
 if __name__ == "__main__":
     start = time.time()
     try:
-        main( folder = sys.argv[1], datafolder = sys.argv[2], xend= float(sys.argv[3]), draftLimit = float(sys.argv[4]))
-    except IndexError:
-        main()
-    
+        folder = sys.argv[1]
+        datafolder = sys.argv[2]
+        xend= float(sys.argv[3])
+        draftLimit = float(sys.argv[4])
+    except IndexError:    
+        folder = os.environ["SIMULATIONFIGUREFOLDER"]
+        datafolder = "/home/aholaj/Data/BinnedData"
+        xend = 33.0
+        draftLimit = 1e-3
+        
+    main(folder, datafolder, xend, draftLimit)
+
     end = time.time()
     print("Script completed in " + str(round((end - start),0)) + " seconds")
