@@ -32,7 +32,9 @@ class ManuscriptFigures:
     
     def __init__(self, figurefolder, datafolder, xend = 33.0, draftLimit = 1e-3):        
         
-        self.figurefolder = figurefolder
+        self.figurefolder = pathlib.Path(figurefolder)
+        self.figurefolder.mkdir( parents=True, exist_ok = True )
+        
         self.datafolder = pathlib.Path(datafolder)
         self.xstart = 2.1
         self.xend = xend
