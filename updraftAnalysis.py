@@ -30,13 +30,13 @@ matplotlib.use("PDF")
 
 class ManuscriptFigures:
 
-    def __init__(self, figurefolder, datafolder, xend = 33.0, draftLimit = 1e-3):
+    def __init__(self, figurefolder, datafolder, xstart = 2.1, xend = 33.0, draftLimit = 1e-3):
 
         self.figurefolder = pathlib.Path(figurefolder)
         self.figurefolder.mkdir( parents=True, exist_ok = True )
 
         self.datafolder = pathlib.Path(datafolder)
-        self.xstart = 2.1
+        self.xstart = xstart
         self.xend = xend
 
         self.draftLimit = draftLimit
@@ -58,7 +58,7 @@ class ManuscriptFigures:
 
 
 
-    def figureUpdraft(self):
+    def figureUpdraftTimeseries(self):
         packing = 7
 
 
@@ -227,32 +227,164 @@ class ManuscriptFigures:
             fig.save()
         # end height for loop
 
+    def figureUpdraftProfile(self):
+        packing = 7
+
+
+        yend = 1.5
+
+
+        aeroAnalysis  = SimulationDataAnalysis( self.simulation, "S_Nabb", "AeroB")
+        cloudAnalysis = SimulationDataAnalysis( self.simulation, "S_Ncbb", "CloudB")
+        iceAnalysis   = SimulationDataAnalysis( self.simulation, "S_Nibb","IceB")
+
+
+        aeroAnalysis.renameAUXCoordSizeBinB()
+        cloudAnalysis.renameAUXCoordSizeBinB()
+        iceAnalysis.renameAUXCoordSizeBinB()
+
+        if packing <7:
+            aeroAnalysis.packFilteredAUXVariablewithSizeBinCoords(packing)
+            cloudAnalysis.packFilteredAUXVariablewithSizeBinCoords(packing)
+            iceAnalysis.packFilteredAUXVariablewithSizeBinCoords(packing)
+
+        aero = aeroAnalysis.simulation.AUXDatasets["AeroB"]["S_Nabb"]
+        cloud = cloudAnalysis.simulation.AUXDatasets["CloudB"]["S_Ncbb"]
+        ice = iceAnalysis.simulation.AUXDatasets["IceB"]["S_Nibb"]
+
+        updraft = self.simulation.AUXDatasets["Updraft"]["w"]
+
+        updraft = updraft.rename({"ym":"yt"})
+        updraft.yt.values = updraft.yt.values-25.
+
+        dataset = xarray.merge([aero,cloud,ice,updraft])
+
+        aeroColor = Colorful.getDistinctColorList("red")
+        cloudColor = Colorful.getDistinctColorList("navy")
+        iceColor = Colorful.getDistinctColorList("cyan")
+
+        yticks = numpy.arange(0, 3.5+0.1, 0.5)
+
+
+        fig = Figure(self.figurefolder,"figureProfile_drafts_",
+                     ncols = 2, nrows =packing,
+                     figsize = [8,16], wspace=0.06, left=0.05, bottom = 0.03, top=0.96, right=0.98)
+
+        print("figsize", fig.getFigSize())
+        timeBegin = dataset.time(sel=30, method = "nearest").item()
+        timeEnd = dataset.time(sel=self.xend, method = "nearest").item()
+        datasetTime = dataset.isel(time = slice(timeBegin,timeEnd))
+
+        for draftIndex in range(2):
+            if draftIndex == 0:
+                dataDraft = datasetTime.where(datasetTime["w"] > self.draftLimit, drop=True)
+                drafType = "Up-draft"
+            else:
+                dataDraft = datasetTime.where(datasetTime["w"] < - self.draftLimit, drop=True)
+                drafType = "Down-draft"
+
+            for bini in range(packing):
+                print("")
+                print(drafType, "timeBegin", timeBegin, "timeEnd", timeEnd)
+                axIndex =  bini*2 + draftIndex
+                ax = fig.getAxes(axIndex)
+                
+                if dataDraft["w"].size == 0:
+                    ax.axis("off")
+                    continue
+
+                aeroHeight = dataDraft["S_Nabb"].mean(dim=["xt","yt", "time"], skipna = True)
+                cloudHeight = dataDraft["S_Ncbb"].mean(dim=["xt","yt", "time"], skipna = True)
+                iceHeight  = dataDraft["S_Nibb"].mean(dim=["xt","yt", "time"], skipna = True)
+                
+                print("aeroHeight shape", aeroHeight.shape)
+
+                aeroBin = aeroHeight[:,bini]
+                cloudBin = cloudHeight[:,bini]
+                iceBin = iceHeight[:,bini]
+
+                totalBin = aeroBin + cloudBin + iceBin
+
+                aeroFrac = aeroBin/totalBin
+                cloudFrac = cloudBin/totalBin
+                iceFrac = iceBin/totalBin
+
+
+
+                aeroFrac.plot(ax=ax, color = aeroColor, y = "zt")
+                cloudFrac.plot(ax=ax, color = cloudColor, y = "zt")
+                iceFrac.plot(ax=ax, color = iceColor, y = "zt")
+
+
+                bininame = str(bini +1)
+                if True:
+                    label = " ".join([drafType, "Bin", bininame])
+                    facecolor = "black"
+
+                    PlotTweak.setArtist(ax, {label:facecolor}, loc = (0.01, 0.74), framealpha = 0.8)
+
+                    if axIndex == 0:
+                        collectionOfLabelsColors = {"Aerosol": aeroColor, "Cloud": cloudColor, "Ice": iceColor}
+                        PlotTweak.setArtist(ax, collectionOfLabelsColors, ncol = 3, loc = (0.75,1.12))
+
+                ##############
+                # ax.set_title("")
+                # PlotTweak.setXLim(ax, start = self.xstart, end = self.xend)
+                # PlotTweak.setYLim(ax, end = yend)
+
+                # PlotTweak.setYticks(ax, yticks)
+                # yShownLabelsBoolean = PlotTweak.setYLabels(ax, yticks, end = 3, interval = 1, integer=True)
+                # PlotTweak.setYTickSizes(ax, yShownLabelsBoolean)
+
+                # xticks = PlotTweak.setXticks(ax, start = self.xstart, end = self.xend, interval = 1)
+                # shownLabelsBoolean = PlotTweak.setXLabels(ax, xticks, end = self.xend, interval = 4)
+                # PlotTweak.setXTickSizes(ax, shownLabelsBoolean)
+
+                # PlotTweak.setYaxisLabel(ax,"")
+                # if axIndex in [12,13]:
+                #     PlotTweak.setXaxisLabel(ax,"Time", "h")
+                # else:
+                #     PlotTweak.setXaxisLabel(ax,"")
+                #     PlotTweak.hideXTickLabels(ax)
+
+                # if draftIndex == 1:
+                #     PlotTweak.hideYTickLabels(ax)
+                # if axIndex == 0:
+                #     ax.text( 0.5*self.xend, yticks[-1]+yticks[1]*0.25, PlotTweak.getUnitLabel("Height\ " + f"{realHeight:.0f}", "m")+ " " +  heightList[height] + " limit: " + f"{self.draftLimit:.0e}"  , size=8)
+
+            # end bini for loop
+        # end draftIndex for loop
+        fig.save()
 
 
 
 
-def main(folder = os.environ["SIMULATIONFIGUREFOLDER"], datafolder = "/home/aholaj/Data/BinnedData", xend = 33.0, draftLimit = 1e-3):
+def main(folder = os.environ["SIMULATIONFIGUREFOLDER"], datafolder = "/home/aholaj/Data/BinnedData", xstart = 2.1, xend = 33.0, draftLimit = 1e-3):
 
     figObject = ManuscriptFigures(folder, datafolder, xend, draftLimit)
 
 
+    if False:
+        figObject.figureUpdraftTimeseries()
     if True:
-        figObject.figureUpdraft()
+        figObject.figureUpdraftProfile()
 
 if __name__ == "__main__":
     start = time.time()
     try:
         folder = sys.argv[1]
         datafolder = sys.argv[2]
-        xend= float(sys.argv[3])
-        draftLimit = float(sys.argv[4])
+        xstart = float(sys.argv(3))
+        xend= float(sys.argv[4])
+        draftLimit = float(sys.argv[5])
     except IndexError:    
         folder = os.environ["SIMULATIONFIGUREFOLDER"]
         datafolder = "/home/aholaj/Data/BinnedData"
+        xstart = 2.1
         xend = 33.0
-        draftLimit = 1e-3
+        draftLimit = 1e-2
         
-    main(folder, datafolder, xend, draftLimit)
+    main(folder, datafolder, xstart, xend, draftLimit)
 
     end = time.time()
     print("Script completed in " + str(round((end - start),0)) + " seconds")
