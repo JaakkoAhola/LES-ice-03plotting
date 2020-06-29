@@ -139,7 +139,7 @@ class ManuscriptFigures:
                     print("height", realHeight, drafType,"bini", bini)
                     axIndex =  bini*2 + draftIndex
                     ax = fig.getAxes(axIndex)
-                    
+
                     if dataDraft["w"].size == 0:
                         ax.axis("off")
                         continue
@@ -270,10 +270,10 @@ class ManuscriptFigures:
                      ncols = 2, nrows =packing,
                      figsize = [8,16], wspace=0.06, left=0.05, bottom = 0.03, top=0.96, right=0.98)
 
-        print("figsize", fig.getFigSize())
-        timeBegin = dataset.time(sel=30, method = "nearest").item()
-        timeEnd = dataset.time(sel=self.xend, method = "nearest").item()
-        datasetTime = dataset.isel(time = slice(timeBegin,timeEnd))
+
+        timeBegin = dataset.time.sel(time=self.xstart, method = "nearest").item()
+        timeEnd = dataset.time.sel(time=self.xend, method = "nearest").item()
+        datasetTime = dataset.sel(time = slice(timeBegin,timeEnd))
 
         for draftIndex in range(2):
             if draftIndex == 0:
@@ -288,7 +288,7 @@ class ManuscriptFigures:
                 print(drafType, "timeBegin", timeBegin, "timeEnd", timeEnd)
                 axIndex =  bini*2 + draftIndex
                 ax = fig.getAxes(axIndex)
-                
+
                 if dataDraft["w"].size == 0:
                     ax.axis("off")
                     continue
@@ -296,12 +296,12 @@ class ManuscriptFigures:
                 aeroHeight = dataDraft["S_Nabb"].mean(dim=["xt","yt", "time"], skipna = True)
                 cloudHeight = dataDraft["S_Ncbb"].mean(dim=["xt","yt", "time"], skipna = True)
                 iceHeight  = dataDraft["S_Nibb"].mean(dim=["xt","yt", "time"], skipna = True)
-                
+
                 print("aeroHeight shape", aeroHeight.shape)
 
-                aeroBin = aeroHeight[:,bini]
-                cloudBin = cloudHeight[:,bini]
-                iceBin = iceHeight[:,bini]
+                aeroBin = aeroHeight[bini,:]
+                cloudBin = cloudHeight[bini,:]
+                iceBin = iceHeight[bini,:]
 
                 totalBin = aeroBin + cloudBin + iceBin
 
@@ -361,7 +361,7 @@ class ManuscriptFigures:
 
 def main(folder = os.environ["SIMULATIONFIGUREFOLDER"], datafolder = "/home/aholaj/Data/BinnedData", xstart = 2.1, xend = 33.0, draftLimit = 1e-3):
 
-    figObject = ManuscriptFigures(folder, datafolder, xend, draftLimit)
+    figObject = ManuscriptFigures(folder, datafolder, xstart, xend, draftLimit)
 
 
     if False:
@@ -374,17 +374,17 @@ if __name__ == "__main__":
     try:
         folder = sys.argv[1]
         datafolder = sys.argv[2]
-        xstart = float(sys.argv(3))
+        xstart = float(sys.argv[3])
         xend= float(sys.argv[4])
         draftLimit = float(sys.argv[5])
-    except IndexError:    
+    except IndexError:
         folder = os.environ["SIMULATIONFIGUREFOLDER"]
         datafolder = "/home/aholaj/Data/BinnedData"
         xstart = 2.1
         xend = 33.0
         draftLimit = 1e-2
-        
-    main(folder, datafolder, xstart, xend, draftLimit)
+
+    main(folder =folder, datafolder = datafolder, xstart = xstart, xend = xend, draftLimit = draftLimit)
 
     end = time.time()
     print("Script completed in " + str(round((end - start),0)) + " seconds")
