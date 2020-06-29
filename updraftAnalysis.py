@@ -231,9 +231,6 @@ class ManuscriptFigures:
         packing = 7
 
 
-        yend = 1.5
-
-
         aeroAnalysis  = SimulationDataAnalysis( self.simulation, "S_Nabb", "AeroB")
         cloudAnalysis = SimulationDataAnalysis( self.simulation, "S_Ncbb", "CloudB")
         iceAnalysis   = SimulationDataAnalysis( self.simulation, "S_Nibb","IceB")
@@ -263,13 +260,13 @@ class ManuscriptFigures:
         cloudColor = Colorful.getDistinctColorList("navy")
         iceColor = Colorful.getDistinctColorList("cyan")
 
-        yticks = numpy.arange(0, 3.5+0.1, 0.5)
+        xaxisend = 1.0
+        yend = 1000.
 
-
-        fig = Figure(self.figurefolder,"figureProfile_drafts_",
+        fig = Figure(self.figurefolder,"figureProfileDrafts",
                      ncols = 2, nrows =packing,
-                     figsize = [8,16], wspace=0.06, left=0.05, bottom = 0.03, top=0.96, right=0.98)
-
+                     wspace=0.06, left=0.12, bottom = 0.03, top=0.96, right=0.98)
+        print("figsize", fig.getFigSize())
 
         timeBegin = dataset.time.sel(time=self.xstart, method = "nearest").item()
         timeEnd = dataset.time.sel(time=self.xend, method = "nearest").item()
@@ -321,36 +318,42 @@ class ManuscriptFigures:
                     label = " ".join([drafType, "Bin", bininame])
                     facecolor = "black"
 
-                    PlotTweak.setArtist(ax, {label:facecolor}, loc = (0.01, 0.74), framealpha = 0.8)
+                    PlotTweak.setArtist(ax, {label:facecolor}, loc = (0.025, 0.85), framealpha = 0.8)
 
                     if axIndex == 0:
                         collectionOfLabelsColors = {"Aerosol": aeroColor, "Cloud": cloudColor, "Ice": iceColor}
                         PlotTweak.setArtist(ax, collectionOfLabelsColors, ncol = 3, loc = (0.75,1.12))
 
                 ##############
-                # ax.set_title("")
-                # PlotTweak.setXLim(ax, start = self.xstart, end = self.xend)
-                # PlotTweak.setYLim(ax, end = yend)
+                ax.set_title("")
 
-                # PlotTweak.setYticks(ax, yticks)
-                # yShownLabelsBoolean = PlotTweak.setYLabels(ax, yticks, end = 3, interval = 1, integer=True)
-                # PlotTweak.setYTickSizes(ax, yShownLabelsBoolean)
+                PlotTweak.setYLim(ax, end = yend)
+                yticks = PlotTweak.setYticks(ax, end = yend, interval = 100)
+                shownYLabelsBoolean = PlotTweak.setYLabels(ax, yticks, end = yend, interval = 200)
+                PlotTweak.setYTickSizes(ax, shownYLabelsBoolean)
 
-                # xticks = PlotTweak.setXticks(ax, start = self.xstart, end = self.xend, interval = 1)
-                # shownLabelsBoolean = PlotTweak.setXLabels(ax, xticks, end = self.xend, interval = 4)
-                # PlotTweak.setXTickSizes(ax, shownLabelsBoolean)
 
-                # PlotTweak.setYaxisLabel(ax,"")
-                # if axIndex in [12,13]:
-                #     PlotTweak.setXaxisLabel(ax,"Time", "h")
-                # else:
-                #     PlotTweak.setXaxisLabel(ax,"")
-                #     PlotTweak.hideXTickLabels(ax)
+                PlotTweak.setXLim(ax,  end = xaxisend)
+                xticks = PlotTweak.setXticks(ax, end =xaxisend, interval = 0.1, integer = False)
+                xShownLabelsBoolean = PlotTweak.setXLabels(ax, xticks, end = xaxisend, interval = 0.2, integer=False)
+                PlotTweak.setXTickSizes(ax, xShownLabelsBoolean)
 
-                # if draftIndex == 1:
-                #     PlotTweak.hideYTickLabels(ax)
-                # if axIndex == 0:
-                #     ax.text( 0.5*self.xend, yticks[-1]+yticks[1]*0.25, PlotTweak.getUnitLabel("Height\ " + f"{realHeight:.0f}", "m")+ " " +  heightList[height] + " limit: " + f"{self.draftLimit:.0e}"  , size=8)
+
+                PlotTweak.setYaxisLabel(ax,"")
+                if (bini == packing -1):
+                    PlotTweak.setXaxisLabel(ax,"Time", "h")
+                else:
+                    PlotTweak.setXaxisLabel(ax,"")
+                    PlotTweak.hideXTickLabels(ax)
+
+                if draftIndex == 0:
+                    PlotTweak.setXaxisLabel(ax,"Height", "m")
+
+                if draftIndex == 1:
+                    PlotTweak.hideYTickLabels(ax)
+
+                if axIndex == 0:
+                    ax.text( 0.5*xaxisend, yticks[-1]+yticks[1]*0.25, "Mean profile from " + PlotTweak.getUnitLabel(f"t_0={self.xstart}", "h")+ " to " +  PlotTweak.getUnitLabel(f"t_1={self.xend}", "h") + " limit: " + f"{self.draftLimit:.0e}"  , size=8)
 
             # end bini for loop
         # end draftIndex for loop
