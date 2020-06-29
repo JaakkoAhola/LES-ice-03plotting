@@ -7,7 +7,7 @@ Created on Tue Jun 23 10:29:56 2020
 @licence: MIT licence Copyright
 """
 
-
+import copy
 import matplotlib
 import numpy
 import pandas
@@ -265,7 +265,7 @@ class ManuscriptFigures:
 
         fig = Figure(self.figurefolder,"figureProfileDrafts",
                      ncols = 2, nrows =packing,
-                     wspace=0.06, left=0.12, bottom = 0.03, top=0.96, right=0.98)
+                     wspace=0.06, left=0.15, bottom = 0.04, top=0.96, right=0.98)
         print("figsize", fig.getFigSize())
 
         timeBegin = dataset.time.sel(time=self.xstart, method = "nearest").item()
@@ -294,7 +294,6 @@ class ManuscriptFigures:
                 cloudHeight = dataDraft["S_Ncbb"].mean(dim=["xt","yt", "time"], skipna = True)
                 iceHeight  = dataDraft["S_Nibb"].mean(dim=["xt","yt", "time"], skipna = True)
 
-                print("aeroHeight shape", aeroHeight.shape)
 
                 aeroBin = aeroHeight[bini,:]
                 cloudBin = cloudHeight[bini,:]
@@ -306,6 +305,12 @@ class ManuscriptFigures:
                 cloudFrac = cloudBin/totalBin
                 iceFrac = iceBin/totalBin
 
+                pointMax = totalBin.max()
+
+                print(pointMax)
+
+                totalBinRelative  = totalBin / pointMax.item()
+                totalBinRelative.plot(ax = ax, color = "black", y = "zt")
 
 
                 aeroFrac.plot(ax=ax, color = aeroColor, y = "zt")
@@ -315,27 +320,35 @@ class ManuscriptFigures:
 
                 bininame = str(bini +1)
                 if True:
-                    label = " ".join([drafType, "Bin", bininame])
+                    label = " ".join([drafType, "Bin", bininame, "Total max N", f"{pointMax.item():.0f}", "$(kg^{-1})$"])
                     facecolor = "black"
 
-                    PlotTweak.setArtist(ax, {label:facecolor}, loc = (0.025, 0.85), framealpha = 0.8)
+                    PlotTweak.setArtist(ax, {label:facecolor}, loc = (0.025, 0.82), framealpha = 0.8)
 
                     if axIndex == 0:
                         collectionOfLabelsColors = {"Aerosol": aeroColor, "Cloud": cloudColor, "Ice": iceColor}
-                        PlotTweak.setArtist(ax, collectionOfLabelsColors, ncol = 3, loc = (0.75,1.12))
+                        PlotTweak.setArtist(ax, collectionOfLabelsColors, ncol = 3, loc = (0.5,1.12))
 
                 ##############
                 ax.set_title("")
 
                 PlotTweak.setYLim(ax, end = yend)
                 yticks = PlotTweak.setYticks(ax, end = yend, interval = 100)
-                shownYLabelsBoolean = PlotTweak.setYLabels(ax, yticks, end = yend, interval = 200)
+                shownYLabelsBoolean = PlotTweak.setYLabels(ax, yticks, end = yend, interval = 200, integer = False)
                 PlotTweak.setYTickSizes(ax, shownYLabelsBoolean)
 
 
                 PlotTweak.setXLim(ax,  end = xaxisend)
                 xticks = PlotTweak.setXticks(ax, end =xaxisend, interval = 0.1, integer = False)
+                xTickLabels = copy.deepcopy(xticks)
+                for xtickInd, xtickValue in enumerate(xTickLabels):
+                    if (xtickInd == 0) or (xtickValue == xTickLabels[-1]):
+                        xTickLabels[xtickInd] = f"{xtickValue:.0f}"
+                    else:
+                        xTickLabels[xtickInd] = f"{xtickValue:.1f}"
+
                 xShownLabelsBoolean = PlotTweak.setXLabels(ax, xticks, end = xaxisend, interval = 0.2, integer=False)
+                ax.set_xticklabels(xTickLabels)
                 PlotTweak.setXTickSizes(ax, xShownLabelsBoolean)
 
 
@@ -347,13 +360,13 @@ class ManuscriptFigures:
                     PlotTweak.hideXTickLabels(ax)
 
                 if draftIndex == 0:
-                    PlotTweak.setXaxisLabel(ax,"Height", "m")
+                    PlotTweak.setYaxisLabel(ax,"Height", "m")
 
                 if draftIndex == 1:
                     PlotTweak.hideYTickLabels(ax)
 
                 if axIndex == 0:
-                    ax.text( 0.5*xaxisend, yticks[-1]+yticks[1]*0.25, "Mean profile from " + PlotTweak.getUnitLabel(f"t_0={self.xstart}", "h")+ " to " +  PlotTweak.getUnitLabel(f"t_1={self.xend}", "h") + " limit: " + f"{self.draftLimit:.0e}"  , size=8)
+                    ax.text( 0.1*xaxisend, yticks[-1]+yticks[1]*0.25, "Mean profile from " + PlotTweak.getUnitLabel(f"t_0={self.xstart}", "h")+ " to " +  PlotTweak.getUnitLabel(f"t_1={self.xend}", "h") + " limit: " + f"{self.draftLimit:.0e}"  , size=8)
 
             # end bini for loop
         # end draftIndex for loop
