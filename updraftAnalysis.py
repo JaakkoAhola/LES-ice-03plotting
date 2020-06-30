@@ -129,14 +129,14 @@ class ManuscriptFigures:
             for draftIndex in range(2):
                 if draftIndex == 0:
                     dataDraft = datasetHeight.where(datasetHeight["w"] > self.draftLimit, drop=True)
-                    drafType = "Up-draft"
+                    draftType = "Up-draft"
                 else:
                     dataDraft = datasetHeight.where(datasetHeight["w"] < - self.draftLimit, drop=True)
-                    drafType = "Down-draft"
+                    draftType = "Down-draft"
 
                 for bini in range(packing):
                     print("")
-                    print("height", realHeight, drafType,"bini", bini)
+                    print("height", realHeight, draftType,"bini", bini)
                     axIndex =  bini*2 + draftIndex
                     ax = fig.getAxes(axIndex)
 
@@ -188,7 +188,7 @@ class ManuscriptFigures:
                     if True:
                         #print("pointZero",pointZero, type(pointZero))
                         #print("pointEnd", pointEnd, type(pointEnd))
-                        label = " ".join([drafType, "Bin", bininame + ",", "Total", r"$N_0$",  str(int(pointZero)) + ",", "\nMin", r"$N$", str(int(pointEnd)), "$(kg^{-1})$"  ])
+                        label = " ".join([draftType, "Bin", bininame + ",", "Total", r"$N_0$",  str(int(pointZero)) + ",", "\nMin", r"$N$", str(int(pointEnd)), "$(kg^{-1})$"  ])
                         facecolor = "black"
 
                         PlotTweak.setArtist(ax, {label:facecolor}, loc = (0.01, 0.74), framealpha = 0.8)
@@ -228,7 +228,7 @@ class ManuscriptFigures:
         # end height for loop
 
     def figureUpdraftProfile(self):
-        packing = 7
+        packing = 4
 
 
         aeroAnalysis  = SimulationDataAnalysis( self.simulation, "S_Nabb", "AeroB")
@@ -264,26 +264,32 @@ class ManuscriptFigures:
         yend = 1000.
 
         fig = Figure(self.figurefolder,"figureProfileDrafts",
-                     ncols = 2, nrows =packing,
-                     wspace=0.06, left=0.15, bottom = 0.04, top=0.96, right=0.98)
+                    figsize = [4.724409448818897, 10], #6.299212598425196
+                     ncols = 2, nrows =1,
+                     wspace=0.06, left=0.16, bottom = 0.05, top=0.94, right=0.98)
         print("figsize", fig.getFigSize())
 
         timeBegin = dataset.time.sel(time=self.xstart, method = "nearest").item()
         timeEnd = dataset.time.sel(time=self.xend, method = "nearest").item()
         datasetTime = dataset.sel(time = slice(timeBegin,timeEnd))
 
+
+        subFigureName =  [chr(ord('a') + i) for i in range(packing*2)]
+        loopedBins = range(packing)[1:2]
         for draftIndex in range(2):
             if draftIndex == 0:
                 dataDraft = datasetTime.where(datasetTime["w"] > self.draftLimit, drop=True)
-                drafType = "Up-draft"
+                draftType = "Up-draft"
             else:
                 dataDraft = datasetTime.where(datasetTime["w"] < - self.draftLimit, drop=True)
-                drafType = "Down-draft"
+                draftType = "Down-draft"
 
-            for bini in range(packing):
+            biniCounter = 0
+            for bini in loopedBins:
                 print("")
-                print(drafType, "timeBegin", timeBegin, "timeEnd", timeEnd)
-                axIndex =  bini*2 + draftIndex
+                print(draftType, "timeBegin", timeBegin, "timeEnd", timeEnd)
+                axIndex =  biniCounter*2 + draftIndex
+                biniCounter += 1
                 ax = fig.getAxes(axIndex)
 
                 if dataDraft["w"].size == 0:
@@ -307,7 +313,6 @@ class ManuscriptFigures:
 
                 pointMax = totalBin.max()
 
-                print(pointMax)
 
                 totalBinRelative  = totalBin / pointMax.item()
                 totalBinRelative.plot(ax = ax, color = "black", y = "zt")
@@ -317,17 +322,22 @@ class ManuscriptFigures:
                 cloudFrac.plot(ax=ax, color = cloudColor, y = "zt")
                 iceFrac.plot(ax=ax, color = iceColor, y = "zt")
 
-
-                bininame = str(bini +1)
+                if packing < 7:
+                    if bini == (packing - 1):
+                        bininame = str(bini + 1 ) + " - 7"
+                    else:
+                        bininame = str(bini +1)
+                else:
+                    bininame = str(bini +1)
                 if True:
-                    label = " ".join([drafType, "Bin", bininame, "Total max N", f"{pointMax.item():.0f}", "$(kg^{-1})$"])
+                    label = " ".join([subFigureName[axIndex] + ")", draftType, "Bin", bininame, "\nTotal max N", f"{pointMax.item():.0f}", "$(kg^{-1})$"])
                     facecolor = "black"
 
-                    PlotTweak.setArtist(ax, {label:facecolor}, loc = (0.025, 0.82), framealpha = 0.8)
+                    PlotTweak.setAnnotation(ax, label, xPosition = 0.1, yPosition = 100)
 
                     if axIndex == 0:
-                        collectionOfLabelsColors = {"Aerosol": aeroColor, "Cloud": cloudColor, "Ice": iceColor}
-                        PlotTweak.setArtist(ax, collectionOfLabelsColors, ncol = 3, loc = (0.5,1.12))
+                        collectionOfLabelsColors = {"Aerosol": aeroColor, "Cloud": cloudColor, "Ice": iceColor, "Total" : "black"}
+                        PlotTweak.setArtist(ax, collectionOfLabelsColors, ncol = 4, loc = (0.15,1.12))
 
                 ##############
                 ax.set_title("")
