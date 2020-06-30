@@ -382,6 +382,168 @@ class ManuscriptFigures:
         # end draftIndex for loop
         fig.save()
 
+    def figureUpdraftProfileLog(self):
+        packing = 4
+
+
+        aeroAnalysis  = SimulationDataAnalysis( self.simulation, "S_Nabb", "AeroB")
+        cloudAnalysis = SimulationDataAnalysis( self.simulation, "S_Ncbb", "CloudB")
+        iceAnalysis   = SimulationDataAnalysis( self.simulation, "S_Nibb","IceB")
+
+
+        aeroAnalysis.renameAUXCoordSizeBinB()
+        cloudAnalysis.renameAUXCoordSizeBinB()
+        iceAnalysis.renameAUXCoordSizeBinB()
+
+        if packing <7:
+            aeroAnalysis.packFilteredAUXVariablewithSizeBinCoords(packing)
+            cloudAnalysis.packFilteredAUXVariablewithSizeBinCoords(packing)
+            iceAnalysis.packFilteredAUXVariablewithSizeBinCoords(packing)
+
+        aero = aeroAnalysis.simulation.AUXDatasets["AeroB"]["S_Nabb"]
+        cloud = cloudAnalysis.simulation.AUXDatasets["CloudB"]["S_Ncbb"]
+        ice = iceAnalysis.simulation.AUXDatasets["IceB"]["S_Nibb"]
+
+        updraft = self.simulation.AUXDatasets["Updraft"]["w"]
+
+        updraft = updraft.rename({"ym":"yt"})
+        updraft.yt.values = updraft.yt.values-25.
+
+        dataset = xarray.merge([aero,cloud,ice,updraft])
+
+        aeroColor = Colorful.getDistinctColorList("red")
+        cloudColor = Colorful.getDistinctColorList("navy")
+        iceColor = Colorful.getDistinctColorList("cyan")
+
+        xaxisend = 1.0
+        ystart = 400.
+        yend = 850.
+
+        fig = Figure(self.figurefolder,"figureProfileDraftsLog",
+                    figsize = [4.724409448818897, 2.5],
+                     ncols = 2, nrows =1,
+                     wspace=0.06, left=0.12, bottom = 0.12, top=0.75, right=0.98)
+        print("figsize", fig.getFigSize())
+
+        timeBegin = dataset.time.sel(time=self.xstart, method = "nearest").item()
+        timeEnd = dataset.time.sel(time=self.xend, method = "nearest").item()
+        datasetTime = dataset.sel(time = slice(timeBegin,timeEnd))
+
+
+        subFigureName =  [chr(ord('a') + i) for i in range(packing*2)]
+        loopedBins = range(packing)[1:2]
+        for draftIndex in range(2):
+            if draftIndex == 0:
+                dataDraft = datasetTime.where(datasetTime["w"] > self.draftLimit, drop=True)
+                draftType = "Up-draft"
+            else:
+                dataDraft = datasetTime.where(datasetTime["w"] < - self.draftLimit, drop=True)
+                draftType = "Down-draft"
+
+            biniCounter = 0
+            for bini in loopedBins:
+                print("")
+                print(draftType, "timeBegin", timeBegin, "timeEnd", timeEnd)
+                axIndex =  biniCounter*2 + draftIndex
+                biniCounter += 1
+                ax = fig.getAxes(axIndex)
+
+                if dataDraft["w"].size == 0:
+                    ax.axis("off")
+                    continue
+
+                aeroHeight = dataDraft["S_Nabb"].mean(dim=["xt","yt", "time"], skipna = True)
+                cloudHeight = dataDraft["S_Ncbb"].mean(dim=["xt","yt", "time"], skipna = True)
+                iceHeight  = dataDraft["S_Nibb"].mean(dim=["xt","yt", "time"], skipna = True)
+
+
+                aeroBin = aeroHeight[bini,:]
+                cloudBin = cloudHeight[bini,:]
+                iceBin = iceHeight[bini,:]
+
+                totalBin = aeroBin + cloudBin + iceBin
+
+                aeroFrac = numpy.log10(aeroBin)#/totalBin
+                cloudFrac = numpy.log10(cloudBin)#/totalBin
+                iceFrac = numpy.log10(iceBin)#/totalBin
+
+                pointMax = totalBin.max()
+
+
+                totalBinRelative  = totalBin #/ pointMax.item()
+                # totalBinRelative.plot(ax = ax, color = "black", y = "zt")
+
+
+                aeroFrac.plot(ax=ax, color = aeroColor, y = "zt")
+                cloudFrac.plot(ax=ax, color = cloudColor, y = "zt")
+                iceFrac.plot(ax=ax, color = iceColor, y = "zt")
+
+                if packing < 7:
+                    if bini == (packing - 1):
+                        bininame = str(bini + 1 ) + " - 7"
+                    else:
+                        bininame = str(bini +1)
+                else:
+                    bininame = str(bini +1)
+
+                ##############
+                ax.set_title("")
+
+                PlotTweak.setYLim(ax, start = ystart, end = yend)
+                yticks = PlotTweak.setYticks(ax, start = ystart, end = yend, interval = 50)
+                shownYLabelsBoolean = PlotTweak.setYLabels(ax, yticks, end = yend, interval = 100, integer = False)
+                PlotTweak.setYTickSizes(ax, shownYLabelsBoolean)
+
+
+                # PlotTweak.setXLim(ax,  end = xaxisend)
+                # xticks = PlotTweak.setXticks(ax, end =xaxisend, interval = 0.1, integer = False)
+                # xTickLabels = copy.deepcopy(xticks)
+                # for xtickInd, xtickValue in enumerate(xTickLabels):
+                #     if (xtickInd == 0) or (xtickValue == xTickLabels[-1]):
+                #         xTickLabels[xtickInd] = f"{xtickValue:.0f}"
+                #     else:
+                #         xTickLabels[xtickInd] = f"{xtickValue:.1f}"
+                #
+                # xShownLabelsBoolean = PlotTweak.setXLabels(ax, xticks, end = xaxisend, interval = 0.2, integer=False)
+                # ax.set_xticklabels(xTickLabels)
+                # PlotTweak.setXTickSizes(ax, xShownLabelsBoolean)
+                #
+                #
+
+                xlimits = ax.get_xlim()
+                ylimits = ax.get_ylim()
+                print("limits", xlimits, ylimits)
+
+                PlotTweak.setXaxisLabel(ax,"")
+                PlotTweak.setYaxisLabel(ax,"")
+
+                # if (bini == packing -1):
+                #     PlotTweak.setXaxisLabel(ax,"")
+                # else:
+                #     PlotTweak.setXaxisLabel(ax,"")
+                #     PlotTweak.hideXTickLabels(ax)
+                #
+                if draftIndex == 0:
+                    PlotTweak.setYaxisLabel(ax,"Height", "m")
+
+                if draftIndex == 1:
+                    PlotTweak.hideYTickLabels(ax)
+
+                if axIndex == 0:
+                    ax.text( 0.1*(xlimits[1]-xlimits[0]), (ylimits[1]-ylimits[0])*0.05+ylimits[1], "Mean profile from " + PlotTweak.getUnitLabel(f"t_0={self.xstart}", "h")+ " to " +  PlotTweak.getUnitLabel(f"t_1={self.xend}", "h") + " limit: " + f"{self.draftLimit:.0e}"  , size=8)
+                if True:
+                    label = " ".join([subFigureName[axIndex] + ")", draftType, "Bin", bininame]) #"\nTotal max N", f"{pointMax.item():.0f}", "$(kg^{-1})$"])
+                    facecolor = "black"
+
+                    PlotTweak.setAnnotation(ax, label, xPosition = 0.1*(xlimits[1]-xlimits[0])+xlimits[0], yPosition = 0.1*(ylimits[1]-ylimits[0])+ylimits[0])
+
+                    if axIndex == 0:
+                        collectionOfLabelsColors = {"Aerosol": aeroColor, "Cloud": cloudColor, "Ice": iceColor}
+                        PlotTweak.setArtist(ax, collectionOfLabelsColors, ncol = 3, loc = (0.15,1.12))
+
+            # end bini for loop
+        # end draftIndex for loop
+        fig.save()
 
 
 
@@ -392,8 +554,11 @@ def main(folder = os.environ["SIMULATIONFIGUREFOLDER"], datafolder = "/home/ahol
 
     if False:
         figObject.figureUpdraftTimeseries()
-    if True:
+    if False:
         figObject.figureUpdraftProfile()
+    if True:
+        figObject.figureUpdraftProfileLog()
+
 
 if __name__ == "__main__":
     start = time.time()
