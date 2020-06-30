@@ -261,12 +261,13 @@ class ManuscriptFigures:
         iceColor = Colorful.getDistinctColorList("cyan")
 
         xaxisend = 1.0
-        yend = 1000.
+        ystart = 400.
+        yend = 850.
 
         fig = Figure(self.figurefolder,"figureProfileDrafts",
-                    figsize = [4.724409448818897, 10], #6.299212598425196
+                    figsize = [4.724409448818897, 2.7],
                      ncols = 2, nrows =1,
-                     wspace=0.06, left=0.16, bottom = 0.05, top=0.94, right=0.98)
+                     wspace=0.06, left=0.12, bottom = 0.12, top=0.8, right=0.98)
         print("figsize", fig.getFigSize())
 
         timeBegin = dataset.time.sel(time=self.xstart, method = "nearest").item()
@@ -329,22 +330,13 @@ class ManuscriptFigures:
                         bininame = str(bini +1)
                 else:
                     bininame = str(bini +1)
-                if True:
-                    label = " ".join([subFigureName[axIndex] + ")", draftType, "Bin", bininame, "\nTotal max N", f"{pointMax.item():.0f}", "$(kg^{-1})$"])
-                    facecolor = "black"
-
-                    PlotTweak.setAnnotation(ax, label, xPosition = 0.1, yPosition = 100)
-
-                    if axIndex == 0:
-                        collectionOfLabelsColors = {"Aerosol": aeroColor, "Cloud": cloudColor, "Ice": iceColor, "Total" : "black"}
-                        PlotTweak.setArtist(ax, collectionOfLabelsColors, ncol = 4, loc = (0.15,1.12))
 
                 ##############
                 ax.set_title("")
 
-                PlotTweak.setYLim(ax, end = yend)
-                yticks = PlotTweak.setYticks(ax, end = yend, interval = 100)
-                shownYLabelsBoolean = PlotTweak.setYLabels(ax, yticks, end = yend, interval = 200, integer = False)
+                PlotTweak.setYLim(ax, start = ystart, end = yend)
+                yticks = PlotTweak.setYticks(ax, start = ystart, end = yend, interval = 50)
+                shownYLabelsBoolean = PlotTweak.setYLabels(ax, yticks, end = yend, interval = 100, integer = False)
                 PlotTweak.setYTickSizes(ax, shownYLabelsBoolean)
 
 
@@ -361,14 +353,17 @@ class ManuscriptFigures:
                 ax.set_xticklabels(xTickLabels)
                 PlotTweak.setXTickSizes(ax, xShownLabelsBoolean)
 
-
+                xlimits = ax.get_xlim()
+                ylimits = ax.get_ylim()
+                PlotTweak.setXaxisLabel(ax,"")
                 PlotTweak.setYaxisLabel(ax,"")
-                if (bini == packing -1):
-                    PlotTweak.setXaxisLabel(ax,"Time", "h")
-                else:
-                    PlotTweak.setXaxisLabel(ax,"")
-                    PlotTweak.hideXTickLabels(ax)
 
+                # if (bini == packing -1):
+                #     PlotTweak.setXaxisLabel(ax,"")
+                # else:
+                #     PlotTweak.setXaxisLabel(ax,"")
+                #     PlotTweak.hideXTickLabels(ax)
+                #
                 if draftIndex == 0:
                     PlotTweak.setYaxisLabel(ax,"Height", "m")
 
@@ -376,11 +371,21 @@ class ManuscriptFigures:
                     PlotTweak.hideYTickLabels(ax)
 
                 if axIndex == 0:
-                    ax.text( 0.1*xaxisend, yticks[-1]+yticks[1]*0.25, "Mean profile from " + PlotTweak.getUnitLabel(f"t_0={self.xstart}", "h")+ " to " +  PlotTweak.getUnitLabel(f"t_1={self.xend}", "h") + " limit: " + f"{self.draftLimit:.0e}"  , size=8)
+                    ax.text( 0.1*(xlimits[1]-xlimits[0]), (ylimits[1]-ylimits[0])*0.05+ylimits[1], "Mean profile from " + PlotTweak.getUnitLabel(f"t_0={self.xstart}", "h")+ " to " +  PlotTweak.getUnitLabel(f"t_1={self.xend}", "h") + " limit: " + f"{self.draftLimit:.0e}"  , size=8)
+                if True:
+                    label = " ".join([subFigureName[axIndex] + ")", draftType, "Bin", bininame]) #"\nTotal max N", f"{pointMax.item():.0f}", "$(kg^{-1})$"])
+                    facecolor = "black"
+
+                    PlotTweak.setAnnotation(ax, label, xPosition = 0.05*(xlimits[1]-xlimits[0])+xlimits[0], yPosition = 0.1*(ylimits[1]-ylimits[0])+ylimits[0])
+
+                    if axIndex == 0:
+                        collectionOfLabelsColors = {"Aerosol": aeroColor, "Cloud": cloudColor, "Ice": iceColor, "Total":"black"}
+                        PlotTweak.setArtist(ax, collectionOfLabelsColors, ncol = 4, loc = (0.15,1.13))
 
             # end bini for loop
         # end draftIndex for loop
         fig.save()
+
 
     def figureUpdraftProfileLog(self):
         packing = 4
@@ -422,7 +427,7 @@ class ManuscriptFigures:
         fig = Figure(self.figurefolder,"figureProfileDraftsLog",
                     figsize = [4.724409448818897, 2.5],
                      ncols = 2, nrows =1,
-                     wspace=0.06, left=0.12, bottom = 0.12, top=0.75, right=0.98)
+                     wspace=0.06, left=0.12, bottom = 0.12, top=0.86, right=0.98)
         print("figsize", fig.getFigSize())
 
         timeBegin = dataset.time.sel(time=self.xstart, method = "nearest").item()
@@ -530,16 +535,16 @@ class ManuscriptFigures:
                     PlotTweak.hideYTickLabels(ax)
 
                 if axIndex == 0:
-                    ax.text( 0.1*(xlimits[1]-xlimits[0]), (ylimits[1]-ylimits[0])*0.05+ylimits[1], "Mean profile from " + PlotTweak.getUnitLabel(f"t_0={self.xstart}", "h")+ " to " +  PlotTweak.getUnitLabel(f"t_1={self.xend}", "h") + " limit: " + f"{self.draftLimit:.0e}"  , size=8)
+                    ax.text( 0.1*(xlimits[1]-xlimits[0])+xlimits[0], (ylimits[1]-ylimits[0])*0.05+ylimits[1], "Mean profile from " + PlotTweak.getUnitLabel(f"t_0={self.xstart}", "h")+ " to " +  PlotTweak.getUnitLabel(f"t_1={self.xend}", "h") + " limit: " + f"{self.draftLimit:.0e}"  , size=8)
                 if True:
                     label = " ".join([subFigureName[axIndex] + ")", draftType, "Bin", bininame]) #"\nTotal max N", f"{pointMax.item():.0f}", "$(kg^{-1})$"])
                     facecolor = "black"
 
-                    PlotTweak.setAnnotation(ax, label, xPosition = 0.1*(xlimits[1]-xlimits[0])+xlimits[0], yPosition = 0.1*(ylimits[1]-ylimits[0])+ylimits[0])
+                    PlotTweak.setAnnotation(ax, label, xPosition = 0.08*(xlimits[1]-xlimits[0])+xlimits[0], yPosition = 0.08*(ylimits[1]-ylimits[0])+ylimits[0])
 
                     if axIndex == 0:
                         collectionOfLabelsColors = {"Aerosol": aeroColor, "Cloud": cloudColor, "Ice": iceColor}
-                        PlotTweak.setArtist(ax, collectionOfLabelsColors, ncol = 3, loc = (0.15,1.12))
+                        PlotTweak.setArtist(ax, collectionOfLabelsColors, ncol = 3, loc = (0.15,1.14))
 
             # end bini for loop
         # end draftIndex for loop
@@ -554,9 +559,9 @@ def main(folder = os.environ["SIMULATIONFIGUREFOLDER"], datafolder = "/home/ahol
 
     if False:
         figObject.figureUpdraftTimeseries()
-    if False:
-        figObject.figureUpdraftProfile()
     if True:
+        figObject.figureUpdraftProfile()
+    if False:
         figObject.figureUpdraftProfileLog()
 
 
