@@ -264,10 +264,12 @@ class ManuscriptFigures:
         ystart = 400.
         yend = 850.
 
+        loopedBins = range(packing)[1:3]
+
         fig = Figure(self.figurefolder,"figureProfileDrafts",
-                    figsize = [4.724409448818897, 2.7],
-                     ncols = 2, nrows =1,
-                     wspace=0.06, left=0.12, bottom = 0.12, top=0.8, right=0.98)
+                    figsize = [4.724409448818897, 3],
+                     ncols = 2, nrows =len(loopedBins),
+                     wspace=0.06, left=0.12, bottom = 0.12, top=0.85, right=0.98)
         print("figsize", fig.getFigSize())
 
         timeBegin = dataset.time.sel(time=self.xstart, method = "nearest").item()
@@ -276,7 +278,7 @@ class ManuscriptFigures:
 
 
         subFigureName =  [chr(ord('a') + i) for i in range(packing*2)]
-        loopedBins = range(packing)[1:2]
+
         for draftIndex in range(2):
             if draftIndex == 0:
                 dataDraft = datasetTime.where(datasetTime["w"] > self.draftLimit, drop=True)
@@ -290,7 +292,7 @@ class ManuscriptFigures:
                 print("")
                 print(draftType, "timeBegin", timeBegin, "timeEnd", timeEnd)
                 axIndex =  biniCounter*2 + draftIndex
-                biniCounter += 1
+
                 ax = fig.getAxes(axIndex)
 
                 if dataDraft["w"].size == 0:
@@ -358,12 +360,11 @@ class ManuscriptFigures:
                 PlotTweak.setXaxisLabel(ax,"")
                 PlotTweak.setYaxisLabel(ax,"")
 
-                # if (bini == packing -1):
-                #     PlotTweak.setXaxisLabel(ax,"")
-                # else:
-                #     PlotTweak.setXaxisLabel(ax,"")
-                #     PlotTweak.hideXTickLabels(ax)
-                #
+                print("bini", biniCounter, "loopedBins -1", len(loopedBins)-1)
+                if (biniCounter != len(loopedBins) -1):
+                     PlotTweak.hideXTickLabels(ax)
+
+
                 if draftIndex == 0:
                     PlotTweak.setYaxisLabel(ax,"Height", "m")
 
@@ -371,7 +372,7 @@ class ManuscriptFigures:
                     PlotTweak.hideYTickLabels(ax)
 
                 if axIndex == 0:
-                    ax.text( 0.1*(xlimits[1]-xlimits[0]), (ylimits[1]-ylimits[0])*0.05+ylimits[1], "Mean profile from " + PlotTweak.getUnitLabel(f"t_0={self.xstart}", "h")+ " to " +  PlotTweak.getUnitLabel(f"t_1={self.xend}", "h") + " limit: " + f"{self.draftLimit:.0e}"  , size=8)
+                    ax.text( 0.05*(xlimits[1]-xlimits[0]), (ylimits[1]-ylimits[0])*0.05+ylimits[1], "Mean profile from " + PlotTweak.getUnitLabel(f"t_0={self.xstart}", "h")+ " to " +  PlotTweak.getUnitLabel(f"t_1={self.xend}", "h") + " limit: " + PlotTweak.getUnitLabel(f"{self.draftLimit:.1f}", "m\ s^{-1}")  , size=8)
                 if True:
                     label = " ".join([subFigureName[axIndex] + ")", draftType, "Bin", bininame]) #"\nTotal max N", f"{pointMax.item():.0f}", "$(kg^{-1})$"])
                     facecolor = "black"
@@ -380,7 +381,8 @@ class ManuscriptFigures:
 
                     if axIndex == 0:
                         collectionOfLabelsColors = {"Aerosol": aeroColor, "Cloud": cloudColor, "Ice": iceColor, "Total":"black"}
-                        PlotTweak.setArtist(ax, collectionOfLabelsColors, ncol = 4, loc = (0.15,1.13))
+                        PlotTweak.setArtist(ax, collectionOfLabelsColors, ncol = 4, loc = (0.10,1.19))
+                biniCounter += 1
 
             # end bini for loop
         # end draftIndex for loop
@@ -544,7 +546,7 @@ class ManuscriptFigures:
 
                     if axIndex == 0:
                         collectionOfLabelsColors = {"Aerosol": aeroColor, "Cloud": cloudColor, "Ice": iceColor}
-                        PlotTweak.setArtist(ax, collectionOfLabelsColors, ncol = 3, loc = (0.15,1.14))
+                        PlotTweak.setArtist(ax, collectionOfLabelsColors, ncol = 3, loc = (0.15,1.19))
 
             # end bini for loop
         # end draftIndex for loop
