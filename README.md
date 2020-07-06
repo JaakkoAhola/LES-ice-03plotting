@@ -42,19 +42,19 @@ Thus, these insctructions are for Linux operating system.
 # Prepare plotting library (=this repository)
 
 
-    - Download this repository with command:
-        - `git clone https://github.com/JaakkoAhola/LES-ice-03plotting`
-    - `cd LES-ice-03plotting`
-    - checkout the latest release of the repository (For acp-2019-1182 manuscript, checkout release tag: v1.1), e.g.:
-        - `git checkout v1.1`
+- Download this repository with command:
+    - `git clone https://github.com/JaakkoAhola/LES-ice-03plotting`
+- `cd LES-ice-03plotting`
+- checkout the latest release of the repository (For acp-2019-1182 manuscript, checkout release tag: v1.1.1), e.g.:
+    - `git checkout v1.1.1`
 
 # Making figures
 
 
-    - Plot figures 1-7 with command:
-        - `python manuscriptFigures.py`
+- Plot figures 1-7 with command:
+    - `python manuscriptFigures.py`
 
-    - Plot figure 8 with command:
-        - `python updraftAnalysis.py`
+- Plot figure 8 with command:
+    - `python updraftAnalysis.py`
 
-    - Now the files should be in `${SIMULATIONFIGUREFOLDER}`.
+- Now the files should be in `${SIMULATIONFIGUREFOLDER}`.
