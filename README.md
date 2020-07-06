@@ -6,8 +6,8 @@ Thus, these insctructions are for Linux operating system.
 
 
 - Python run within Anaconda environment (downloaded from https://repo.anaconda.com/archive/Anaconda3-2020.02-Linux-x86_64.sh)
-- Conda environment file in this repository: (environment.yml)[environment.yml]
-- Change prefix line in (environment.yml)[environment.yml] file to be in line with your conda environment (here it's `data`).
+- Conda environment file in this repository: [environment.yml](environment.yml)
+- Change `prefix` line in [environment.yml](environment.yml) file to be in line with your conda environment (here it's `data`).
 - Conda environment can be installed after installation of Anaconda with command:
     - `conda env create -f environment.yml`
 - Activate conda environment
