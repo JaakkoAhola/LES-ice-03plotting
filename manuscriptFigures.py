@@ -438,7 +438,7 @@ class ManuscriptFigures:
         Plot.getColorBar(im,cax,logaritmicLevels)
         
         shownLabelsBoolean = Data.getMaskedList(logaritmicLevels, numpy.arange(-11,-19,-1))
-        PlotTweak._hideLabels(cax.xaxis, shownLabelsBoolean)
+        PlotTweak.hideLabels(cax.xaxis, shownLabelsBoolean)
         PlotTweak.setXTickSizes(cax, shownLabelsBoolean)
         PlotTweak.setXaxisLabel(cax, "", unit="kg\ kg^{-1}")
         ###
@@ -485,6 +485,7 @@ class ManuscriptFigures:
         aeroColor = Colorful.getDistinctColorList("red")
         cloudColor = Colorful.getDistinctColorList("navy")
         iceColor = Colorful.getDistinctColorList("cyan")
+        totalColor = Colorful.getDistinctColorList("green")
         
         yticks = [0, 0.5, 1, 1.5]
         
@@ -514,7 +515,7 @@ class ManuscriptFigures:
             aeroFrac.plot(ax=ax, color = aeroColor)
             cloudFrac.plot(ax=ax, color = cloudColor)
             iceFrac.plot(ax=ax, color = iceColor)
-            totalBinRelative.plot(ax = ax, color = "black")
+            totalBinRelative.plot(ax = ax, color = totalColor)
             
             if bini == (packing - 1):
                 bininame = str(bini + 1 ) + " - 7"
@@ -524,7 +525,7 @@ class ManuscriptFigures:
             if True:
                 
                 label = " ".join([figName[bini], "Bin", bininame + ",", "Total", r"$N_0$",  str(int(pointZero)) + ",", "\nMin", r"$N$", str(int(pointEnd)), "$(kg^{-1})$"  ])
-                facecolor = "black"
+                facecolor = totalColor
                 
                 PlotTweak.setArtist(ax, {label:facecolor}, loc = (0.01, 0.74), framealpha = 0.8)
             

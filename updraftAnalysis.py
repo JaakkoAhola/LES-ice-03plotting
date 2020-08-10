@@ -225,6 +225,7 @@ class ManuscriptFigures:
         aeroColor = Colorful.getDistinctColorList("red")
         cloudColor = Colorful.getDistinctColorList("navy")
         iceColor = Colorful.getDistinctColorList("cyan")
+        totalColor = Colorful.getDistinctColorList("green")
 
         xaxisend = 1.0
         ystart = 400.
@@ -284,7 +285,7 @@ class ManuscriptFigures:
 
 
                 totalBinRelative  = totalBin / pointMax.item()
-                totalBinRelative.plot(ax = ax, color = "black", y = "zt")
+                totalBinRelative.plot(ax = ax, color = totalColor, y = "zt")
 
 
                 aeroFrac.plot(ax=ax, color = aeroColor, y = "zt")
@@ -349,7 +350,7 @@ class ManuscriptFigures:
                     PlotTweak.setAnnotation(ax, label, xPosition = 0.05*(xlimits[1]-xlimits[0])+xlimits[0], yPosition = 0.1*(ylimits[1]-ylimits[0])+ylimits[0])
 
                     if axIndex == 0:
-                        collectionOfLabelsColors = {"Aerosol": aeroColor, "Cloud": cloudColor, "Ice": iceColor, "Total":"black"}
+                        collectionOfLabelsColors = {"Aerosol": aeroColor, "Cloud": cloudColor, "Ice": iceColor, "Total":totalColor}
                         PlotTweak.setArtist(ax, collectionOfLabelsColors, ncol = 4, loc = (0.10,1.19))
                 biniCounter += 1
 
