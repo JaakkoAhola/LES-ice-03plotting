@@ -511,11 +511,11 @@ class ManuscriptFigures:
             
             totalBinRelative  = totalBin / pointZero
             
-            
-            aeroFrac.plot(ax=ax, color = aeroColor)
-            cloudFrac.plot(ax=ax, color = cloudColor)
-            iceFrac.plot(ax=ax, color = iceColor)
             totalBinRelative.plot(ax = ax, color = totalColor)
+            cloudFrac.plot(ax=ax, color = cloudColor)
+            aeroFrac.plot(ax=ax, color = aeroColor)
+            iceFrac.plot(ax=ax, color = iceColor)
+            
             
             if bini == (packing - 1):
                 bininame = str(bini + 1 ) + " - 7"

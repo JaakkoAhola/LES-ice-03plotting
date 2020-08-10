@@ -287,9 +287,9 @@ class ManuscriptFigures:
                 totalBinRelative  = totalBin / pointMax.item()
                 totalBinRelative.plot(ax = ax, color = totalColor, y = "zt")
 
-
-                aeroFrac.plot(ax=ax, color = aeroColor, y = "zt")
+                
                 cloudFrac.plot(ax=ax, color = cloudColor, y = "zt")
+                aeroFrac.plot(ax=ax, color = aeroColor, y = "zt")
                 iceFrac.plot(ax=ax, color = iceColor, y = "zt")
 
                 if packing < 7:
