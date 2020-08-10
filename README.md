@@ -24,8 +24,8 @@ Thus, these insctructions are for Linux operating system.
 - Download plotting library:
     - `git clone https://github.com/JaakkoAhola/LES-03plotting`
     - `cd LES-03plotting`
-    -  Checkout latest release tag. (For acp-2019-1182 manuscript, checkout release tag: v1.1), e.g.:
-        - `git checkout v1.1`
+    -  Checkout latest release tag. (For acp-2019-1182 manuscript, checkout release tag: v1.1.1), e.g.:
+        - `git checkout v1.1.1`
 
 
 # Prepare metadata for plotting
@@ -45,8 +45,8 @@ Thus, these insctructions are for Linux operating system.
 - Download this repository with command:
     - `git clone https://github.com/JaakkoAhola/LES-ice-03plotting`
 - `cd LES-ice-03plotting`
-- checkout the latest release of the repository (For acp-2019-1182 manuscript, checkout release tag: v1.1.2), e.g.:
-    - `git checkout v1.1.2`
+- checkout the latest release of the repository (For acp-2019-1182 manuscript, checkout release tag: v1.1.4), e.g.:
+    - `git checkout v1.1.4`
 
 # Making figures
 
