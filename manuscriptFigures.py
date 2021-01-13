@@ -15,7 +15,7 @@ import sys
 import os
 from matplotlib.patches import Patch
 
-sys.path.append("../LES-03plotting")
+sys.path.append(os.environ["LESMAINSCRIPTS"])
 from InputSimulation import InputSimulation
 from Figure import Figure
 from Plot import Plot
@@ -25,7 +25,7 @@ from Data import Data
 from SimulationDataAnalysis import SimulationDataAnalysis
 
 class ManuscriptFigures:
-    
+
     def __init__(self, simulationDataFrameCSVFile, figurefolder):
         simulationDataFrame = pandas.read_csv(simulationDataFrameCSVFile)
 
@@ -34,14 +34,14 @@ class ManuscriptFigures:
         self.figurefolder = figurefolder
 
     def figure2(self):
-        
+
         # create figure object
         fig = Figure(self.figurefolder,"figure2", ncols = 2, nrows = 3)
-        
+
         simulationList = Figure2SimulationList()
-        
+
         for k in simulationList.getAllSimulations():
-            try: 
+            try:
                 self.simulationCollection[k].getTSDataset()
                 self.simulationCollection[k].setTimeCoordToHours()
             except FileNotFoundError:
@@ -51,22 +51,22 @@ class ManuscriptFigures:
                 else:
                     print("{0} data missing from {1}, make sure you have set your \
                           folder and environment variables correctly".format(k, self.simulationCollection[k].getFolder()))
-            
+
             if self.simulationCollection[k].getLabel() == "BULK":
                 self.simulationCollection[k].setZorder(1)
             elif self.simulationCollection[k].getLabel() == "BIN":
                 self.simulationCollection[k].setZorder(2)
             else:
                 self.simulationCollection[k].setZorder(3)
-        
+
         for k in simulationList.getUCLALESSALSASimulations():
             self.simulationCollection[k].setLineWidth(matplotlib.rcParams["lines.linewidth"]*1.5)
             self.simulationCollection[k].setColor(Colorful.getDistinctColorList("green"))
-        
+
         lwpYlimit = 60
         iwpYlimit = 21
         yPositionFrac = 0.91
-        
+
         # figA
         ax = fig.getAxes(0)
         for k in simulationList.getIce0Simulations():
@@ -74,7 +74,7 @@ class ManuscriptFigures:
                                self.simulationCollection[k],
                                "lwp_bar", conversionFactor=1000.)
         PlotTweak.setAnnotation(ax, "a) ICE0 liquid water path", xPosition=0.2, yPosition= lwpYlimit*yPositionFrac)
-        
+
         # figB
         ax = fig.getAxes(2)
         for k in simulationList.getIce1Simulations():
@@ -82,7 +82,7 @@ class ManuscriptFigures:
                                self.simulationCollection[k],
                                "lwp_bar", conversionFactor=1000.)
         PlotTweak.setAnnotation(ax, "b) ICE1 liquid water path", xPosition=0.2, yPosition= lwpYlimit*yPositionFrac)
-            
+
         # figC
         ax = fig.getAxes(3)
         for k in simulationList.getIce1Simulations():
@@ -90,7 +90,7 @@ class ManuscriptFigures:
                                self.simulationCollection[k],
                                "iwp_bar", conversionFactor=1000.)
         PlotTweak.setAnnotation(ax, "c) ICE1 ice water path", xPosition=0.2, yPosition= iwpYlimit*yPositionFrac)
-            
+
         # figD
         ax = fig.getAxes(4)
         for k in simulationList.getIce4Simulations():
@@ -98,7 +98,7 @@ class ManuscriptFigures:
                                self.simulationCollection[k],
                                "lwp_bar", conversionFactor=1000.)
         PlotTweak.setAnnotation(ax, "d) ICE4 liquid water path", xPosition=0.2, yPosition= lwpYlimit*yPositionFrac)
-        
+
         # figE
         ax = fig.getAxes(5)
         for k in simulationList.getIce4Simulations():
@@ -106,42 +106,42 @@ class ManuscriptFigures:
                                self.simulationCollection[k],
                                "iwp_bar", conversionFactor=1000.)
         PlotTweak.setAnnotation(ax, "e) ICE4 ice water path", xPosition=0.2, yPosition= iwpYlimit*yPositionFrac)
-        
+
         for i in [0,2,4]: #LWP figures
             ax = fig.getAxes(i)
             end = lwpYlimit
             PlotTweak.setYaxisLabel(ax,"LWP", "g\ m^{-2}")
-            PlotTweak.setYLim(ax, end = end)  
+            PlotTweak.setYLim(ax, end = end)
             ticks = PlotTweak.setYticks(ax, end = end, interval = 2)
             shownLabelsBoolean = PlotTweak.setYLabels(ax, ticks, end = end, interval = 10)
             PlotTweak.setYTickSizes(ax, shownLabelsBoolean)
-        
+
         for i in [1,3,5]: #IWP figures
             ax = fig.getAxes(i)
             PlotTweak.setYaxisLabel(ax,"IWP", "g\ m^{-2}")
             end = iwpYlimit
-            PlotTweak.setYLim(ax, end = end)  
+            PlotTweak.setYLim(ax, end = end)
             ticks = PlotTweak.setYticks(ax, end = end, interval = 1)
             shownLabelsBoolean = PlotTweak.setYLabels(ax, ticks, end = end, interval = 3)
             PlotTweak.setYTickSizes(ax, shownLabelsBoolean)
-            
+
         for i in [0,2,3,4,5]: #all timeseries figures
             ax = fig.getAxes(i)
             end = 8
             PlotTweak.setXLim(ax, end = end)
             Plot.getVerticalLine(ax, 2)
-            
+
             if i in [4,5]:
                 PlotTweak.setXaxisLabel(ax,"Time", "h")
             else:
                  PlotTweak.setXaxisLabel(ax,"")
                  PlotTweak.hideXTickLabels(ax)
-        
+
             ticks = PlotTweak.setXticks(ax, end = end, interval = 0.5, integer=False)
             ticks = [int(k) for k in  ticks]
             shownLabelsBoolean = PlotTweak.setXLabels(ax, ticks, end = end, interval = 2)
             PlotTweak.setXTickSizes(ax, shownLabelsBoolean)
-            
+
         # empty space
         ax = fig.getAxes(1)
         ax.axis("off")
@@ -151,36 +151,36 @@ class ManuscriptFigures:
                              label='BIN'),
                        Patch(facecolor=self.simulationCollection["COSMO_ice0"].getColor(),
                              label='BULK')]
-    
+
         ax.legend(handles=legend_elements, loc='center', frameon = True, framealpha = 1.0)
-            
+
         fig.save()
-        
+
     def figure3(self):
-        
+
         # create figure object
         fig = Figure(self.figurefolder,"figure3", ncols = 2, nrows = 1, figsize = [12/2.54, 7/2.54],bottom = 0.18, top=0.8)
-        
+
         simulationList = []
         for i in range(1,7):
             case = str(i)
-            pretext = "ICE" + case 
+            pretext = "ICE" + case
             if case in ["5", "6"]:
                 posttext = "8h"
             else:
                 posttext = "24h"
             simulationList.append(pretext+ "_" + posttext)
-        
+
         for k in simulationList:
             self.simulationCollection[k].getTSDataset()
             self.simulationCollection[k].setTimeCoordToHours()
-        
+
         lwpYlimit = 60
         iwpYlimit = 22
-        
+
         xPosition = 0.5
         yPositionFrac = 0.92
-        
+
         # figA
         ax = fig.getAxes(0)
         for k in simulationList:
@@ -191,11 +191,11 @@ class ManuscriptFigures:
         PlotTweak.setAnnotation(ax, "a) Liquid water path", xPosition=xPosition, yPosition= yPositionFrac*end)
         PlotTweak.setYaxisLabel(ax,"LWP", "g\ m^{-2}")
         PlotTweak.setYLim(ax, end = end)
-        PlotTweak.setYLim(ax, end = end)  
+        PlotTweak.setYLim(ax, end = end)
         ticks = PlotTweak.setYticks(ax, end = end, interval = 2)
         shownLabelsBoolean = PlotTweak.setYLabels(ax, ticks, end = end, interval = 10)
         PlotTweak.setYTickSizes(ax, shownLabelsBoolean)
-        
+
         # figB
         ax = fig.getAxes(1)
         for k in simulationList:
@@ -207,11 +207,11 @@ class ManuscriptFigures:
         PlotTweak.setYaxisLabel(ax,"IWP", "g\ m^{-2}")
         PlotTweak.setYLim(ax, end = end)
         end = iwpYlimit
-        PlotTweak.setYLim(ax, end = end)  
+        PlotTweak.setYLim(ax, end = end)
         ticks = PlotTweak.setYticks(ax, end = end, interval = 1)
         shownLabelsBoolean = PlotTweak.setYLabels(ax, ticks, end = end, interval = 3)
         PlotTweak.setYTickSizes(ax, shownLabelsBoolean)
-    
+
         for i in [0,1]:
             ax = fig.getAxes(i)
             end = 24
@@ -219,44 +219,44 @@ class ManuscriptFigures:
             Plot.getVerticalLine(ax, 2)
             Plot.getVerticalLine(ax, 8)
             PlotTweak.setXaxisLabel(ax,"Time", "h")
-            
+
             # set xticks
             ticks = PlotTweak.setXticks(ax, end = end, interval = 1, integer=False)
             # set xlabels
             ticks = [int(k) for k in  ticks]
             shownLabelsBoolean = PlotTweak.setXLabels(ax, ticks, end = end, interval = 4)
             # set xtick sizes
-            PlotTweak.setXTickSizes(ax, shownLabelsBoolean)                
-        
+            PlotTweak.setXTickSizes(ax, shownLabelsBoolean)
+
         ax = fig.getAxes(0)
         legend_elements = []
-        
+
         for k in simulationList:
             legend_elements.append(Patch(facecolor=self.simulationCollection[k].getColor(),
                              label=self.simulationCollection[k].getLabel()))
-                       
-    
+
+
         ax.legend(handles=legend_elements, loc=(0.5,1.05), frameon = True, framealpha = 1.0, ncol=3)
-            
+
         fig.save()
-        
+
     def figure4(self):
-        
+
         fig = Figure(self.figurefolder,"figure4", ncols = 2, nrows = 3, left=0.15, wspace=0.4)
-        
+
         simulationList = ["Prognostic_48h", "ICE4_24h"]
-        
+
         for k in simulationList:
             self.simulationCollection[k].getTSDataset()
             self.simulationCollection[k].getNCDataset()
             self.simulationCollection[k].setTimeCoordToHours()
-        
+
         lwpYlimit = 60
         iwpYlimit = 21
-        
+
         xPosition = 0.52
         yPositionFrac = 0.91
-        
+
         # figA
         ax = fig.getAxes(0)
         for k in simulationList:
@@ -267,11 +267,11 @@ class ManuscriptFigures:
         PlotTweak.setAnnotation(ax, "a) Liquid water path", xPosition=xPosition, yPosition= yPositionFrac*end)
         PlotTweak.setYaxisLabel(ax,"LWP", "g\ m^{-2}")
         PlotTweak.setYLim(ax, end = end)
-        PlotTweak.setYLim(ax, end = end)  
+        PlotTweak.setYLim(ax, end = end)
         ticks = PlotTweak.setYticks(ax, end = end, interval = 2)
         shownLabelsBoolean = PlotTweak.setYLabels(ax, ticks, end = end, interval = 10)
         PlotTweak.setYTickSizes(ax, shownLabelsBoolean)
-        
+
         # figB
         ax = fig.getAxes(1)
         for k in simulationList:
@@ -283,11 +283,11 @@ class ManuscriptFigures:
         PlotTweak.setYaxisLabel(ax,"IWP", "g\ m^{-2}")
         PlotTweak.setYLim(ax, end = end)
         end = iwpYlimit
-        PlotTweak.setYLim(ax, end = end)  
+        PlotTweak.setYLim(ax, end = end)
         ticks = PlotTweak.setYticks(ax, end = end, interval = 1)
         shownLabelsBoolean = PlotTweak.setYLabels(ax, ticks, end = end, interval = 3)
         PlotTweak.setYTickSizes(ax, shownLabelsBoolean)
-            
+
         # figC
         ax = fig.getAxes(2)
         for k in simulationList:
@@ -298,12 +298,12 @@ class ManuscriptFigures:
         end = 5
         PlotTweak.setAnnotation(ax, "c) Ice number \nconcentration", xPosition=xPosition, yPosition= 4)
         PlotTweak.setYaxisLabel(ax,"N_{i}", "L^{-1}")
-        PlotTweak.setYLim(ax, end = end)  
+        PlotTweak.setYLim(ax, end = end)
         ticks = PlotTweak.setYticks(ax, end = end, interval = 0.2, integer=False)
-        
+
         shownLabelsBoolean = PlotTweak.setYLabels(ax, ticks, end = end, interval = 1)
         PlotTweak.setYTickSizes(ax, shownLabelsBoolean)
-            
+
         # figD
         ax = fig.getAxes(3)
         for k in simulationList:
@@ -313,11 +313,11 @@ class ManuscriptFigures:
         end = 170
         PlotTweak.setAnnotation(ax, "d) In-cloud CDNC", xPosition=xPosition, yPosition= yPositionFrac*end)
         PlotTweak.setYaxisLabel(ax,"CDNC", "mg^{-1}")
-        PlotTweak.setYLim(ax, end = end)  
+        PlotTweak.setYLim(ax, end = end)
         ticks = PlotTweak.setYticks(ax, end = end, interval = 10)
         shownLabelsBoolean = PlotTweak.setYLabels(ax, ticks, end = end, interval = 50)
         PlotTweak.setYTickSizes(ax, shownLabelsBoolean)
-            
+
         # figE
         ax = fig.getAxes(4)
         for k in simulationList:
@@ -329,28 +329,28 @@ class ManuscriptFigures:
         end = 1000
         PlotTweak.setAnnotation(ax, "e) Cloud top and base", xPosition=xPosition, yPosition= yPositionFrac*end)
         PlotTweak.setYaxisLabel(ax,"Height", "m")
-        PlotTweak.setYLim(ax, end = end)    
+        PlotTweak.setYLim(ax, end = end)
         ticks = PlotTweak.setYticks(ax, end = end, interval = 100)
         shownLabelsBoolean = PlotTweak.setYLabels(ax, ticks, end = end, interval = 200)
         PlotTweak.setYTickSizes(ax, shownLabelsBoolean)
-                    
+
         for i in range(5):
             ax = fig.getAxes(i)
             end = 32
             PlotTweak.setXLim(ax, end = end)
             Plot.getVerticalLine(ax, 2)
             Plot.getVerticalLine(ax, 24)
-            
+
             if i in [3,4]:
                 PlotTweak.setXaxisLabel(ax,"Time", "h")
             else:
                 PlotTweak.setXaxisLabel(ax,"")
                 PlotTweak.hideXTickLabels(ax)
-        
+
             ticks = PlotTweak.setXticks(ax, end = end, interval = 0.5)
             shownLabelsBoolean = PlotTweak.setXLabels(ax, ticks, end = end, interval = 4)
             PlotTweak.setXTickSizes(ax, shownLabelsBoolean)
-            
+
         # empty space
         ax = fig.getAxes(5)
         ax.axis("off")
@@ -358,73 +358,73 @@ class ManuscriptFigures:
                              label='Prognostic ice'),
                        Patch(facecolor=self.simulationCollection["ICE4_24h"].getColor(),
                              label='ICE4')]
-    
+
         ax.legend(handles=legend_elements, loc='center', frameon = True, framealpha = 1.0)
-            
+
         fig.save()
-    
+
     def figure5(self):
-        
+
         fig = Figure(self.figurefolder,"figure5", ncols = 2, nrows = 2, wspace=0.1, bottom = 0.14, left=0.15, top=0.98)
-        
+
         simulation = "Prognostic_48h"
-        
+
         self.simulationCollection[simulation].getPSDataset()
         self.simulationCollection[simulation].getTSDataset()
         self.simulationCollection[simulation].setTimeCoordToHours()
-            
+
         logaritmicLevels = PlotTweak.getLogaritmicTicks(-17,-9, includeFives = True)
         end = 1000
         yPositionFrac = 0.9
         xPosition = 0.5
         orange = Colorful.getDistinctColorList("orange")
-        
+
         annotation = ["a) Dust in aerosols", "b) Dust in cloud droplets", "c) Dust in ice crystals"]
         for ind, muuttuja in enumerate(["P_cDUa", "P_cDUc", "P_cDUi"]):
             ax = fig.getAxes(ind)
             data = self.simulationCollection[simulation].getPSDataset()[muuttuja]
             data.values  = numpy.log10(data.values)
-            
+
             im = data.plot.contourf("time","zt", ax = ax, levels=logaritmicLevels, add_colorbar = False)
             self.simulationCollection[simulation].getTSDataset()["zb"].plot(ax = ax,
                                                                      color = orange,
                                                                      linewidth = self.simulationCollection[simulation].getLineWidth())
-            
+
             ax = Plot.getContourLine(ax, self.simulationCollection[simulation], "P_RHi", 100)
             PlotTweak.setAnnotation(ax, annotation[ind], xPosition=xPosition, yPosition= yPositionFrac*end)
-            
+
             end = 1000
-            PlotTweak.setYLim(ax, end = end)    
+            PlotTweak.setYLim(ax, end = end)
             ticks = PlotTweak.setYticks(ax, end = end, interval = 100)
             shownLabelsBoolean = PlotTweak.setYLabels(ax, ticks, end = end, interval = 200)
             PlotTweak.setYTickSizes(ax, shownLabelsBoolean)
-            
+
         for i in range(3):
             ax = fig.getAxes(i)
             end = 33.05
             PlotTweak.setXLim(ax, end = end)
             Plot.getVerticalLine(ax, 2)
-            
+
             if i in [1,2]:
                 PlotTweak.setXaxisLabel(ax,"Time", "h")
             else:
                 PlotTweak.setXaxisLabel(ax,"")
                 PlotTweak.hideXTickLabels(ax)
-            
+
             if i == 1:
                 PlotTweak.hideYTickLabels(ax)
-            
+
             if i in [0,2]:
                 PlotTweak.setYaxisLabel(ax,"Height", "m")
             else:
                 PlotTweak.setYaxisLabel(ax,"")
                 PlotTweak.hideYTickLabels(ax)
-        
+
             ticks = PlotTweak.setXticks(ax, end = end, interval = 1)
             shownLabelsBoolean = PlotTweak.setXLabels(ax, ticks, end = end, interval = 4)
             PlotTweak.setXTickSizes(ax, shownLabelsBoolean)
-            
-        
+
+
         # empty space
         ax = fig.getAxes(3)
         ax.axis("off")
@@ -432,210 +432,210 @@ class ManuscriptFigures:
                              label='RH over ice 100%'),
                        Patch(facecolor=orange,
                              label='Cloud base')]
-    
+
         ax.legend(handles=legend_elements, loc=(0.07,-0.02), frameon = True, framealpha = 1.0)
         cax = matplotlib.pyplot.axes([0.6, 0.4, 0.33, 0.03])
         Plot.getColorBar(im,cax,logaritmicLevels)
-        
+
         shownLabelsBoolean = Data.getMaskedList(logaritmicLevels, numpy.arange(-11,-19,-1))
         PlotTweak.hideLabels(cax.xaxis, shownLabelsBoolean)
         PlotTweak.setXTickSizes(cax, shownLabelsBoolean)
         PlotTweak.setXaxisLabel(cax, "", unit="kg\ kg^{-1}")
         ###
         fig.save()
-    
+
     def figure6(self):
         packing = 4
         xstart = 2.1
         xend = 33.0
         yend = 1.5
-        
+
         simulation = "Prognostic_48h"
         simulCol = self.simulationCollection[simulation]
         simulCol.getPSDataset()
         simulCol.setTimeCoordToHours()
-        
+
         simulCol.sliceByTimePSDataset(xstart, xend)
-        
+
         fig = Figure(self.figurefolder,"figure6", ncols = 2, nrows = 2,
                      hspace=0.1, bottom = 0.10, left=0.05, top=0.93, wspace = 0.06, right=0.99, figsize = [12/2.54, 4])
-        
+
         aeroAnalysis  = SimulationDataAnalysis( simulCol, "P_Nabb")
         cloudAnalysis = SimulationDataAnalysis( simulCol, "P_Ncbb")
         iceAnalysis   = SimulationDataAnalysis( simulCol, "P_Nibb")
-        
+
         aeroAnalysis.filterPSVariableInCloud()
         cloudAnalysis.filterPSVariableInCloud()
         iceAnalysis.filterPSVariableInCloud()
-        
+
         aeroAnalysis.renamePSCoordSizeBinB()
         cloudAnalysis.renamePSCoordSizeBinB()
         iceAnalysis.renamePSCoordSizeBinB()
-        
+
         aeroAnalysis.packFilteredPSVariablewithSizeBinCoords(packing)
         cloudAnalysis.packFilteredPSVariablewithSizeBinCoords(packing)
         iceAnalysis.packFilteredPSVariablewithSizeBinCoords(packing)
-        
+
         aero = simulCol.getPSDataset()[aeroAnalysis.getFilteredPackedVariableName()]
         cloud = simulCol.getPSDataset()[cloudAnalysis.getFilteredPackedVariableName()]
         ice = simulCol.getPSDataset()[iceAnalysis.getFilteredPackedVariableName()]
-        
+
         total = aero + cloud + ice
-        
+
         aeroColor = Colorful.getDistinctColorList("red")
         cloudColor = Colorful.getDistinctColorList("navy")
         iceColor = Colorful.getDistinctColorList("cyan")
         totalColor = Colorful.getDistinctColorList("green")
-        
+
         yticks = [0, 0.5, 1, 1.5]
-        
-        
+
+
         figName = ["a)", "b)", "c)", "d)"]
-        
+
         for bini in range(packing):
             ax = fig.getAxes(bini)
-            
+
             aeroBin = aero[:,bini]
             cloudBin = cloud[:,bini]
             iceBin = ice[:,bini]
-            
+
             totalBin = total[:,bini]
-            
+
             aeroFrac = aeroBin/totalBin
             cloudFrac = cloudBin/totalBin
             iceFrac = iceBin/totalBin
-            
+
             pointZero = totalBin.sel(time = xstart, method ="nearest")
-            
+
             pointEnd = totalBin.sel(time = xend, method ="nearest").values
-            
+
             totalBinRelative  = totalBin / pointZero
-            
+
             totalBinRelative.plot(ax = ax, color = totalColor)
             cloudFrac.plot(ax=ax, color = cloudColor)
             aeroFrac.plot(ax=ax, color = aeroColor)
             iceFrac.plot(ax=ax, color = iceColor)
-            
-            
+
+
             if bini == (packing - 1):
                 bininame = str(bini + 1 ) + " - 7"
             else:
                 bininame = str(bini +1)
-            
+
             if True:
-                
+
                 label = " ".join([figName[bini], "Bin", bininame + ",", "Total", r"$N_0$",  str(int(pointZero)) + ",", "\nMin", r"$N$", str(int(pointEnd)), "$(kg^{-1})$"  ])
                 facecolor = totalColor
-                
+
                 PlotTweak.setArtist(ax, {label:facecolor}, loc = (0.01, 0.74), framealpha = 0.8)
-            
+
                 if bini == 0:
                     collectionOfLabelsColors = {"Aerosol": aeroColor, "Cloud": cloudColor, "Ice": iceColor}
                     PlotTweak.setArtist(ax, collectionOfLabelsColors, ncol = 3, loc = (0.47,1.02))
-            
+
             ##############
             ax.set_title("")
             PlotTweak.setXLim(ax, start = xstart, end = xend)
             PlotTweak.setYLim(ax, end = yend)
-            
+
             PlotTweak.setYticks(ax, yticks)
             yShownLabelsBoolean = PlotTweak.setYLabels(ax, yticks, end = 1, interval = 1, integer=False)
             PlotTweak.setYTickSizes(ax, yShownLabelsBoolean)
-            
+
             xticks = PlotTweak.setXticks(ax, start = xstart, end = xend, interval = 1)
             shownLabelsBoolean = PlotTweak.setXLabels(ax, xticks, end = xend, interval = 4)
             PlotTweak.setXTickSizes(ax, shownLabelsBoolean)
-            
+
             PlotTweak.setYaxisLabel(ax,"")
             if bini in [2,3]:
                 PlotTweak.setXaxisLabel(ax,"Time", "h")
             else:
                 PlotTweak.setXaxisLabel(ax,"")
                 PlotTweak.hideXTickLabels(ax)
-                
+
             if bini in [1,3]:
                 PlotTweak.hideYTickLabels(ax)
             ###########
-            
-        fig.save()    
-    
+
+        fig.save()
+
     def figure7(self):
-        
+
         fig = Figure(self.figurefolder,"figure7", ncols = 2, nrows = 2, hspace=0.43, bottom = 0.14, left=0.15, top=0.98, wspace = 0.1)
-        
+
         simulation = "Prognostic_48h"
-        
+
         self.simulationCollection[simulation].getPSDataset()
         self.simulationCollection[simulation].setTimeCoordToHours()
-            
+
         end = 1000
         yPositionFrac = 0.9
         xPositionFrac = 0.02
-        
+
         annotation = ["a) Liquid water mixing ratio", "b) Ice mixing ratio", "c) Freezing rate"]
         muuttujalista = ["P_rl", "P_ri", "nucl_ni"]
         aika = [2,4,16,32]
         colorlist = ['#a6cee3','#1f78b4','#b2df8a','#33a02c'] #['#a63603', '#e6550d', '#fd8d3c', '#fdae6b'] #['#1b9e77','#d95f02','#7570b3','#e7298a']
-        
+
         startList = [0, 0, -5]
         endList = [0.2, 0.025,2.5]
-        
+
         xPositionList = []
-        
+
         for ind, muuttuja in enumerate(muuttujalista):
             ax = fig.getAxes(ind)
             data = self.simulationCollection[simulation].getPSDataset()[muuttuja]
-            
+
             xPositionList.append( numpy.abs(startList[ind]-endList[ind])*xPositionFrac + startList[ind])
-            
+
             if muuttuja == "nucl_ni":
                 data.values  = numpy.log10(data.values)
             else:
                 data.values = data.values*1e3
-                
-            
+
+
             for aikaInd, aikapiste in enumerate(aika):
-                
+
                 data.sel(time = aikapiste, method="nearest").plot( y="zt", ax = ax, color = colorlist[aikaInd])
-                
+
         end = 1000
         for ind in range(3):
             ax = fig.getAxes(ind)
             ax.set_title("")
-            PlotTweak.setYLim(ax, end = end)    
+            PlotTweak.setYLim(ax, end = end)
             ticks = PlotTweak.setYticks(ax, end = end, interval = 100)
             shownLabelsBoolean = PlotTweak.setYLabels(ax, ticks, end = end, interval = 200)
             PlotTweak.setYTickSizes(ax, shownLabelsBoolean)
             PlotTweak.setAnnotation(ax, annotation[ind], xPosition= xPositionList[ind], yPosition= yPositionFrac*end)
-            
-        
+
+
         ###
         ind = 0
         ax = fig.getAxes(ind)
         start = startList[ind]
         end = endList[ind]
-        PlotTweak.setXLim(ax, start = ind, end = end) 
+        PlotTweak.setXLim(ax, start = ind, end = end)
         PlotTweak.setXaxisLabel(ax,"", "g\ kg^{-1}")
         PlotTweak.setYaxisLabel(ax,"Height", "m")
-        
+
         matplotlib.pyplot.setp(ax.get_xticklabels()[-1], visible=False)
-        
+
         ###
         ind = 1
         ax = fig.getAxes(ind)
         start = startList[ind]
         end = endList[ind]
-        PlotTweak.setXLim(ax, start = start, end = end) 
+        PlotTweak.setXLim(ax, start = start, end = end)
         PlotTweak.setXaxisLabel(ax,"", "g\ kg^{-1}")
         PlotTweak.setYaxisLabel(ax,"")
         PlotTweak.hideYTickLabels(ax)
-        
-        
+
+
         ticks = PlotTweak.setXticks(ax, end = end, interval = 0.005/2, integer=False)
         shownLabelsBoolean = PlotTweak.setXLabels(ax, ticks, end = end, interval = 0.005, integer = False)
         PlotTweak.setXTickSizes(ax, shownLabelsBoolean)
         matplotlib.pyplot.setp(ax.get_xticklabels()[-1], visible=False)
-        
+
         ###
         ind = 2
         ax = fig.getAxes(ind)
@@ -643,13 +643,13 @@ class ManuscriptFigures:
         end = endList[ind]
         PlotTweak.setYaxisLabel(ax,"Height", "m")
         PlotTweak.setXaxisLabel(ax,"", "m^{-3}\ s^{-1}")
-        PlotTweak.setXLim(ax, start = start, end = end) 
-        
+        PlotTweak.setXLim(ax, start = start, end = end)
+
         xticksLog = numpy.arange(start, end + 0.1, 2.5)
         xlabelsLog = [r"$10^{" + "{0:.1f}".format(elem) + "}$" for elem in xticksLog]
         ax.set_xticks(xticksLog)
         ax.set_xticklabels(xlabelsLog)
-    
+
         # empty space
         ax = fig.getAxes(3)
         ax.axis("off")
@@ -657,22 +657,22 @@ class ManuscriptFigures:
                        Patch(facecolor=colorlist[1], label='4 (h)'),
                        Patch(facecolor=colorlist[2], label='16 (h)'),
                        Patch(facecolor=colorlist[3], label='32 (h)')]
-    
+
         ax.legend(handles=legend_elements, loc="center", frameon = True, framealpha = 1.0)
         fig.save()
 
 class Figure2SimulationList():
-    
+
     def __init__(self):
         self.allSimulations = []
         self.ice0simulations = []
         self.ice1simulations = []
         self.ice4simulations = []
         models = ["COSMO","DHARMA-2M","DHARMA-bin","METO","RAMS", "SAM-2M", "SAM-bin", "UCLALES", "UCLALES-SB","WRFLES","WRFLES-PSU"]
-        
+
         self.uclalesSimulations = ["ICE0_8h", "ICE1_8h", "ICE4_8h"]
-        
-        
+
+
         for i in models:
             self.ice0simulations.append( i + "_" + "ice0")
             self.ice1simulations.append( i + "_" + "ice1")
@@ -680,28 +680,28 @@ class Figure2SimulationList():
         self.ice0simulations.append( self.uclalesSimulations[0] )
         self.ice1simulations.append( self.uclalesSimulations[1] )
         self.ice4simulations.append( self.uclalesSimulations[2] )
-        
+
         self.allSimulations = self.ice0simulations + self.ice1simulations + self.ice4simulations
-        
-        
+
+
     def getIce0Simulations(self):
         return self.ice0simulations
     def getIce1Simulations(self):
         return self.ice1simulations
     def getIce4Simulations(self):
         return self.ice4simulations
-    
+
     def getAllSimulations(self):
         return self.allSimulations
-    
+
     def getUCLALESSALSASimulations(self):
         return self.uclalesSimulations
 
 def main():
 
-    figObject = ManuscriptFigures(os.environ["SIMULATIONFIGUREFOLDER"] + "/manuscriptSimulationData.csv", 
+    figObject = ManuscriptFigures(os.environ["SIMULATIONFIGUREFOLDER"] + "/manuscriptSimulationData.csv",
                                   os.environ["SIMULATIONFIGUREFOLDER"])
-    
+
     if True:
         figObject.figure2()
     if True:
@@ -713,12 +713,12 @@ def main():
     if True:
         figObject.figure6()
     if True:
-        figObject.figure7()        
-    
+        figObject.figure7()
+
 if __name__ == "__main__":
     start = time.time()
-    
+
     main()
-    
+
     end = time.time()
     print("Script completed in " + str(round((end - start),0)) + " seconds")

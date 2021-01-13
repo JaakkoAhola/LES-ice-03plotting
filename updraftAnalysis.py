@@ -16,7 +16,7 @@ import os
 import pathlib
 import xarray
 
-sys.path.append("../LES-03plotting")
+sys.path.append(os.environ["LESMAINSCRIPTS"])
 from Figure import Figure
 from PlotTweak import PlotTweak
 from Colorful import Colorful
@@ -287,7 +287,7 @@ class ManuscriptFigures:
                 totalBinRelative  = totalBin / pointMax.item()
                 totalBinRelative.plot(ax = ax, color = totalColor, y = "zt")
 
-                
+
                 cloudFrac.plot(ax=ax, color = cloudColor, y = "zt")
                 aeroFrac.plot(ax=ax, color = aeroColor, y = "zt")
                 iceFrac.plot(ax=ax, color = iceColor, y = "zt")
